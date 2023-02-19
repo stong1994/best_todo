@@ -1,25 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'task_data.dart';
+import 'task.dart';
+import 'custom_task_card.dart';
+import 'task_screen.dart';
 
-class FocusMatrix extends StatelessWidget {
-  final List<CustomTask> importantUrgent;
-  final List<CustomTask> importantNotUrgent;
-  final List<CustomTask> notImportantUrgent;
-  final List<CustomTask> notImportantNotUrgent;
-  final Function(dynamic) onPressed;
+class FocusMatrix extends StatefulWidget {
+  @override
+  _FocusMatrixState createState() => _FocusMatrixState();
+}
 
-  FocusMatrix({
-    required this.importantUrgent,
-    required this.importantNotUrgent,
-    required this.notImportantUrgent,
-    required this.notImportantNotUrgent,
-    required this.onPressed,
-  });
+class _FocusMatrixState extends State<FocusMatrix> {
+  final TextEditingController _addTaskController = TextEditingController();
 
   @override
-    Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
+  void dispose() {
+    _addTaskController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Focus Matrix'),
+      ),
+      body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
@@ -27,45 +33,46 @@ class FocusMatrix extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: TaskList(
-                    tasks: importantUrgent,
-                    title: 'Important & Urgent',
+                  child: Container(
                     color: Colors.red,
-                    onPressed: onPressed,
+                    child: TaskList(
+                      important: true,
+                      urgent: true,
+                    ),
                   ),
                 ),
-                SizedBox(width: 16),
                 Expanded(
-                  child: TaskList(
-                    tasks: importantNotUrgent,
-                    title: 'Important & Not Urgent',
+                  child: Container(
                     color: Colors.yellow,
-                    onPressed: onPressed,
+                    child: TaskList(
+                      important: true,
+                      urgent: false,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: TaskList(
-                    tasks: notImportantUrgent,
-                    title: 'Not Important & Urgent',
-                    color: Colors.blue,
-                    onPressed: onPressed,
+                  child: Container(
+                    color: Colors.lightBlueAccent,
+                    child: TaskList(
+                      important: false,
+                      urgent: true,
+                    ),
                   ),
                 ),
-                SizedBox(width: 16),
                 Expanded(
-                  child: TaskList(
-                    tasks: notImportantNotUrgent,
-                    title: 'Not Important & Not Urgent',
+                  child: Container(
                     color: Colors.green,
-                    onPressed: onPressed,
+                    child: TaskList(
+                      important: false,
+                      urgent: false,
+                    ),
                   ),
                 ),
               ],
@@ -73,118 +80,130 @@ class FocusMatrix extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class TaskList extends StatelessWidget {
-  final List<CustomTask> tasks;
-  final String title;
-  final Color color;
-  final Function(dynamic) onPressed;
-
-  TaskList({
-    required this.tasks,
-    required this.title,
-    required this.color,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          title,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 16),
-        Expanded(
-          child: ListView.builder(
-            itemCount: tasks.length,
-            itemBuilder: (context, index) {
-              final task = tasks[index];
-              return CustomTaskCard(
-                task: task,
-                onSubmitted: (newTitle) => task.save(newTitle),
-                onDelete: () {
-                  tasks.remove(task);
-                  onPressed(task);
-                },
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-
-
-class CustomTask {
-  String title;
-  bool isEditing = false;
-
-  CustomTask({required this.title});
-
-  void edit() {
-    isEditing = true;
-  }
-
-  void save(String newTitle) {
-    title = newTitle;
-    isEditing = false;
-  }
-
-  void delete() {
-    // TODO: Implement delete functionality
-  }
-}
-
-
-class CustomTaskCard extends StatelessWidget {
-  final CustomTask task;
-  final Function(String) onSubmitted;
-  final Function() onDelete;
-
-  CustomTaskCard({
-    required this.task,
-    required this.onSubmitted,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: task.isEditing
-            ? TextFormField(
-                initialValue: task.title,
-                onFieldSubmitted: onSubmitted,
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(task.title),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) {
+              return Container(
+                color: Color(0xff757575),
+                child: Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: task.edit,
+                      Text(
+                        'Add New Task',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.lightBlueAccent,
+                          fontSize: 30,
+                        ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: onDelete,
+                      TextField(
+                        autofocus: true,
+                        textAlign: TextAlign.center,
+                        controller: _addTaskController,
+                      ),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          Provider.of<TaskData>(context, listen: false)
+                              .addTask(_addTaskController.text);
+                          Navigator.pop(context);
+                        },
+                        child: Text('Add'),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              );
+            },
+          );
+        },
+        child: Icon(Icons.add),
       ),
+    );
+  }
+}
+
+class TaskList extends StatefulWidget {
+  final bool important;
+  final bool urgent;
+
+  TaskList({required this.important, required this.urgent});
+
+  @override
+  _TaskListState createState() => _TaskListState();
+}
+
+class _TaskListState extends State<TaskList> {
+  late List<Task> tasks;
+
+  @override
+  void initState() {
+    super.initState();
+    tasks = context.read<TaskData>().tasks;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: tasks.length,
+      itemBuilder: (context, index) {
+        final task = tasks[index];
+        return CustomTaskCard(
+          // key: Key(task.id),
+          task: task,
+          toggleCheckbox: (bool? checkboxState) {
+            setState(() {
+              task.toggleDone();
+            });
+          },
+          // deleteTask: () {
+          //   setState(() {
+          //     taskData.deleteTask(task);
+          //   });
+          // },
+          // editTask: () {
+          //   _editTask(context, task);
+          // },
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => TaskScreen(
+                        task: task,
+                        isEditing: false,
+                      )),
+            );
+          },
+        );
+
+        // return CustomTaskCard(
+        //   task: task,
+        //   onCheckboxToggle: (value) {
+        //     setState(() {
+        //       task.isCompleted = value;
+        //       context.read<TaskData>().updateTask(task);
+        //     });
+        //   },
+        //   onTap: () {
+        //     Navigator.push(
+        //       context,
+        //       MaterialPageRoute(builder: (context) => TaskScreen(task: task)),
+        //     );
+        //   },
+        // );
+      },
     );
   }
 }
