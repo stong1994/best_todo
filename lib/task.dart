@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 class Task {
-  final String title;
+  String title;
   bool isDone;
 
   Task({required this.title, this.isDone = false});

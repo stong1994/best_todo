@@ -24,6 +24,16 @@ class TaskData extends ChangeNotifier {
 
   void updateTask(Task task) {
     task.toggleDone();
+    // _tasks.forEach((element) {
+    //   if (element.hashCode == task.hashCode) {
+    //     element = task;
+    //   }
+    // });
+    int i = _tasks.indexOf(task);
+    if (i >= 0) {
+      _tasks[i] = task;
+    } 
+    
     notifyListeners();
   }
 

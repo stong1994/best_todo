@@ -97,12 +97,10 @@ class _TaskScreenState extends State<TaskScreen> {
                 ElevatedButton(
                   onPressed: () {
                     if (widget.isEditing) {
-                      Provider.of<TaskData>(context, listen: false).updateTask(
-                        Task(
-                          title: _titleController.text,
-                          isDone: _isCompleted,
-                        ),
-                      );
+                      Task? task = widget.task;
+                      task!.title = _titleController.text;
+                      task.isDone = _isCompleted;
+                      Provider.of<TaskData>(context, listen: false).updateTask(task);
                     } else {
                       Provider.of<TaskData>(context, listen: false)
                           .addTask(_titleController.text);
