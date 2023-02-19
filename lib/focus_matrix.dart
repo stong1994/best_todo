@@ -142,11 +142,26 @@ class TaskList extends StatefulWidget {
   TaskList({required this.important, required this.urgent});
 
   @override
-  _TaskListState createState() => _TaskListState();
+  _TaskListState createState() => _TaskListState(title: this.getTitle());
+
+  String getTitle() {
+    if (this.important && this.urgent) {
+      return "重要&紧急";
+    } else if (this.important && !this.urgent) {
+      return "重要&不紧急";
+    } else if (!this.important && this.urgent) {
+      return "不重要&紧急";
+    } else {
+      return "不重要&不紧急";
+    }
+  }
 }
 
 class _TaskListState extends State<TaskList> {
+  final String title;
   late List<Task> tasks;
+
+  _TaskListState({required this.title});
 
   @override
   void initState() {
@@ -155,97 +170,46 @@ class _TaskListState extends State<TaskList> {
   }
 
   @override
-//   Widget build(BuildContext context) {
-//     return ListView.builder(
-//       itemCount: tasks.length,
-//       itemBuilder: (context, index) {
-//         final task = tasks[index];
-//         return CustomTaskCard(
-//           // key: Key(task.id),
-//           task: task,
-//           toggleCheckbox: (bool? checkboxState) {
-//             setState(() {
-//               task.toggleDone();
-//             });
-//           },
-//           // deleteTask: () {
-//           //   setState(() {
-//           //     taskData.deleteTask(task);
-//           //   });
-//           // },
-//           // editTask: () {
-//           //   _editTask(context, task);
-//           // },
-//           onTap: () {
-//             Navigator.push(
-//               context,
-//               MaterialPageRoute(
-//                   builder: (context) => TaskScreen(
-//                         task: task,
-//                         isEditing: false,
-//                       )),
-//             );
-//           },
-//         );
-
-//         // return CustomTaskCard(
-//         //   task: task,
-//         //   onCheckboxToggle: (value) {
-//         //     setState(() {
-//         //       task.isCompleted = value;
-//         //       context.read<TaskData>().updateTask(task);
-//         //     });
-//         //   },
-//         //   onTap: () {
-//         //     Navigator.push(
-//         //       context,
-//         //       MaterialPageRoute(builder: (context) => TaskScreen(task: task)),
-//         //     );
-//         //   },
-//         // );
-//       },
-//     );
-//   }
-// }
-
-Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Task List")),
-      body: Column(
-        children: [
+  Widget build(BuildContext context) {
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 30.0,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
           Expanded(
-            child: Consumer<TaskData>(
-              builder: (context, taskData, child){
-                return ListView.builder(
-                  itemCount: taskData.taskCount,
-                  itemBuilder: (context, index) {
-                    final task = taskData.tasks[index];
-                    return CustomTaskCard(
-                      // key: Key(task.id),
-                      task: task,
-                      toggleCheckbox: (bool? checkboxState) {
-                        setState(() {
-                          task.toggleDone();
-                        });
-                      },
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => TaskScreen(
-                                    task: task,
-                                    isEditing: false,
-                                  )),
-                        );
-                      },
+              child: Consumer<TaskData>(builder: (context, taskData, child) {
+            return ListView.builder(
+              itemCount: taskData.taskCount,
+              itemBuilder: (context, index) {
+                final task = taskData.tasks[index];
+                return CustomTaskCard(
+                  // key: Key(task.id),
+                  task: task,
+                  toggleCheckbox: (bool? checkboxState) {
+                    setState(() {
+                      task.toggleDone();
+                    });
+                  },
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => TaskScreen(
+                                task: task,
+                                isEditing: false,
+                              )),
                     );
                   },
                 );
-              }
-            )
-          )
-        ]
-      ),
-    );
+              },
+            );
+          }))
+        ]);
   }
 }
