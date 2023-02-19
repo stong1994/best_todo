@@ -1,78 +1,25 @@
 import 'package:flutter/material.dart';
+import 'focus_matrix.dart';
 
 void main() {
-  runApp(const TodoList());
+  runApp(MyApp());
 }
 
-class TodoList extends StatefulWidget {
-  const TodoList({super.key});
-
-  @override
-  State<TodoList> createState() => _TodoListState();
-}
-
-class _TodoListState extends State<TodoList> {
-  static const _appTitle = 'Best Todo';
-  final todos = <String>[];
-  final controller = TextEditingController();
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  void _printLatestValue() {
-    print('Second text field: ${controller.text}');
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Start listening to changes.
-    controller.addListener(_printLatestValue);
-  }
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: _appTitle,
+      title: 'Focus Matrix Demo',
       home: Scaffold(
         appBar: AppBar(
-          title: const Text(_appTitle),
+          title: Text('Focus Matrix'),
         ),
-        body: Column(
-          children: [
-            TextField(
-              controller: controller,
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: todos.length,
-                itemBuilder: (context, index) {
-                  final todo = todos[index];
-
-                  return Dismissible(
-                    key: Key('$todo$index'),
-                    onDismissed: (direction) => todos.removeAt(index),
-                    background: Container(color: Colors.red),
-                    child: ListTile(title: Text(todo)),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              todos.add(controller.text);
-              controller.clear();
-              print("pressed");
-            });
-          },
-          child: const Icon(Icons.add),
+        body: FocusMatrix(
+          importantUrgent: ['Task 1', 'Task 2', 'Task 3'],
+          importantNotUrgent: ['Task 4', 'Task 5'],
+          notImportantUrgent: ['Task 6'],
+          notImportantNotUrgent: ['Task 7', 'Task 8', 'Task 9', 'Task 10'],
+          onPressed: (item) => print('You clicked $item'),
         ),
       ),
     );
