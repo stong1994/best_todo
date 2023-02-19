@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'task_data.dart';
-import 'task_screen.dart';
 import 'package:provider/provider.dart';
+
+import 'task_data.dart';
 import 'task_screen.dart';
 import 'focus_matrix.dart';
 
