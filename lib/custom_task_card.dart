@@ -6,10 +6,11 @@ import 'task_screen.dart';
 
 class CustomTaskCard extends StatefulWidget {
   final Task task;
-  final Function(bool?) toggleCheckbox;
-  final Function() onTap;
+  final Function(bool?) onCheckboxChanged;
+  // final Function() onTap;
+  final Function() onLongPress;
 
-  CustomTaskCard({required this.task, required this.toggleCheckbox, required this.onTap});
+  CustomTaskCard({required this.task, required this.onCheckboxChanged, required this.onLongPress});
 
   @override
   _CustomTaskCardState createState() => _CustomTaskCardState();
@@ -53,11 +54,14 @@ class _CustomTaskCardState extends State<CustomTaskCard> {
       leading: Checkbox(
         value: widget.task.isDone,
         onChanged: (value) {
-          widget.toggleCheckbox(value);
+          widget.onCheckboxChanged(value);
         },
       ),
       onTap: () {
-        widget.onTap();
+        // widget.onTap();
+      },
+      onLongPress: () {
+        // todo
       },
     );
   }

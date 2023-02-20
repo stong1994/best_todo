@@ -3,12 +3,16 @@ import 'task.dart';
 
 class TaskData extends ChangeNotifier {
   List<Task> _tasks = [
-    Task(title: 'Buy milk'),
-    Task(title: 'Buy eggs'),
-    Task(title: 'Buy bread'),
+    Task(title: 'Buy milk', id: "1"),
+    Task(title: 'Buy eggs', id: "2"),
+    Task(title: 'Buy bread', id: "3"),
   ];
 
   List<Task> get tasks {
+    return _tasks;
+  }
+
+  List<Task> getTask(bool important, bool urgent) {
     return _tasks;
   }
 
@@ -17,7 +21,7 @@ class TaskData extends ChangeNotifier {
   }
 
   void addTask(String newTaskTitle) {
-    final task = Task(title: newTaskTitle);
+    final task = Task(title: newTaskTitle, id: "100");
     _tasks.add(task);
     notifyListeners();
   }
