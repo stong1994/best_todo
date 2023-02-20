@@ -183,8 +183,10 @@ class _TaskListState extends State<TaskList> {
             ),
           ),
           Expanded(
-              child: Consumer<TaskData>(builder: (context, taskData, child) {
+            child: Consumer<TaskData>(builder: (context, taskData, child) {
+            ScrollController _scrollController = ScrollController();
             return ListView.builder(
+              controller: _scrollController,
               itemCount: taskData.taskCount,
               itemBuilder: (context, index) {
                 final task = taskData.tasks[index];
