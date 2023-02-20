@@ -32,26 +32,8 @@ class _FocusMatrixState extends State<FocusMatrix> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: Container(
-                    color: Color.fromARGB(255, 246, 148, 129),
-                    child: TaskList(
-                      important: true,
-                      urgent: true,
-                      color: Color.fromARGB(255, 187, 152, 145),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    color: Color.fromARGB(211, 139, 207, 93),
-                    child: TaskList(
-                      important: true,
-                      urgent: false,
-                      color: Color.fromARGB(211, 192, 237, 162),
-                    ),
-                  ),
-                ),
+                TaskBlock(backgroundColor: Color.fromARGB(255, 246, 148, 129), taskListColor: Color.fromARGB(255, 187, 152, 145), important: true, urgent: true),
+                TaskBlock(backgroundColor: Color.fromARGB(211, 139, 207, 93), taskListColor: Color.fromARGB(211, 192, 237, 162), important: true, urgent: false),
               ],
             ),
           ),
@@ -59,26 +41,8 @@ class _FocusMatrixState extends State<FocusMatrix> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: Container(
-                    color: Color.fromARGB(255, 92, 199, 249),
-                    child: TaskList(
-                      important: false,
-                      urgent: true,
-                      color: Color.fromARGB(255, 161, 205, 226),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    color: Color.fromARGB(255, 158, 160, 158),
-                    child: TaskList(
-                      important: false,
-                      urgent: false,
-                      color: Color.fromARGB(255, 191, 193, 191),
-                    ),
-                  ),
-                ),
+                TaskBlock(backgroundColor: Color.fromARGB(255, 92, 199, 249), taskListColor: Color.fromARGB(255, 161, 205, 226), important: false, urgent: true),
+                TaskBlock(backgroundColor: Color.fromARGB(255, 158, 160, 158), taskListColor: Color.fromARGB(255, 191, 193, 191), important: false, urgent: false),
               ],
             ),
           ),
@@ -138,6 +102,36 @@ class _FocusMatrixState extends State<FocusMatrix> {
     );
   }
 }
+
+class TaskBlock extends StatelessWidget {
+  final Color backgroundColor;
+  final Color taskListColor;
+  final bool important;
+  final bool urgent;
+
+  TaskBlock({
+    required this.backgroundColor,
+    required this.taskListColor,
+    required this.important,
+    required this.urgent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.all(16),
+        color: backgroundColor,
+        child: TaskList(
+          important: important,
+          urgent: urgent,
+          color: taskListColor,
+        ),
+      ),
+    );
+  }
+}
+
 
 class TaskList extends StatefulWidget {
   final bool important;
