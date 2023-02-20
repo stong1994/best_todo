@@ -141,14 +141,14 @@ class TaskList extends StatefulWidget {
   TaskList({required this.important, required this.urgent, required this.color});
 
   @override
-  _TaskListState createState() => _TaskListState(title: this.getTitle(), color: this.color);
+  _TaskListState createState() => _TaskListState(title: getTitle(), color: color);
 
   String getTitle() {
-    if (this.important && this.urgent) {
+    if (important && urgent) {
       return "重要&紧急";
-    } else if (this.important && !this.urgent) {
+    } else if (important && !urgent) {
       return "重要&不紧急";
-    } else if (!this.important && this.urgent) {
+    } else if (!important && urgent) {
       return "不重要&紧急";
     } else {
       return "不重要&不紧急";
