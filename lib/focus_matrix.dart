@@ -34,19 +34,21 @@ class _FocusMatrixState extends State<FocusMatrix> {
               children: [
                 Expanded(
                   child: Container(
-                    color: Colors.red,
+                    color: Color.fromARGB(255, 246, 148, 129),
                     child: TaskList(
                       important: true,
                       urgent: true,
+                      color: Color.fromARGB(255, 187, 152, 145),
                     ),
                   ),
                 ),
                 Expanded(
                   child: Container(
-                    color: Colors.yellow,
+                    color: Color.fromARGB(211, 139, 207, 93),
                     child: TaskList(
                       important: true,
                       urgent: false,
+                      color: Color.fromARGB(211, 192, 237, 162),
                     ),
                   ),
                 ),
@@ -59,19 +61,21 @@ class _FocusMatrixState extends State<FocusMatrix> {
               children: [
                 Expanded(
                   child: Container(
-                    color: Colors.lightBlueAccent,
+                    color: Color.fromARGB(255, 92, 199, 249),
                     child: TaskList(
                       important: false,
                       urgent: true,
+                      color: Color.fromARGB(255, 161, 205, 226),
                     ),
                   ),
                 ),
                 Expanded(
                   child: Container(
-                    color: Colors.green,
+                    color: Color.fromARGB(255, 158, 160, 158),
                     child: TaskList(
                       important: false,
                       urgent: false,
+                      color: Color.fromARGB(255, 191, 193, 191),
                     ),
                   ),
                 ),
@@ -138,11 +142,12 @@ class _FocusMatrixState extends State<FocusMatrix> {
 class TaskList extends StatefulWidget {
   final bool important;
   final bool urgent;
+  final Color color;
 
-  TaskList({required this.important, required this.urgent});
+  TaskList({required this.important, required this.urgent, required this.color});
 
   @override
-  _TaskListState createState() => _TaskListState(title: this.getTitle());
+  _TaskListState createState() => _TaskListState(title: this.getTitle(), color: this.color);
 
   String getTitle() {
     if (this.important && this.urgent) {
@@ -159,9 +164,10 @@ class TaskList extends StatefulWidget {
 
 class _TaskListState extends State<TaskList> {
   final String title;
+  final Color color;
   late List<Task> tasks;
 
-  _TaskListState({required this.title});
+  _TaskListState({required this.title, required this.color});
 
   @override
   void initState() {
@@ -183,33 +189,39 @@ class _TaskListState extends State<TaskList> {
             ),
           ),
           Expanded(
-            child: Consumer<TaskData>(builder: (context, taskData, child) {
+              child: Consumer<TaskData>(builder: (context, taskData, child) {
             ScrollController _scrollController = ScrollController();
-            return ListView.builder(
-              controller: _scrollController,
-              itemCount: taskData.taskCount,
-              itemBuilder: (context, index) {
-                final task = taskData.tasks[index];
-                return CustomTaskCard(
-                  // key: Key(task.id),
-                  task: task,
-                  toggleCheckbox: (bool? checkboxState) {
-                    setState(() {
-                      task.toggleDone();
-                    });
-                  },
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => TaskScreen(
-                                task: task,
-                                isEditing: false,
-                              )),
-                    );
-                  },
-                );
-              },
+
+            return Container(
+              decoration: BoxDecoration(
+                color: this.color,
+              ),
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: taskData.taskCount,
+                itemBuilder: (context, index) {
+                  final task = taskData.tasks[index];
+                  return CustomTaskCard(
+                    // key: Key(task.id),
+                    task: task,
+                    toggleCheckbox: (bool? checkboxState) {
+                      setState(() {
+                        task.toggleDone();
+                      });
+                    },
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TaskScreen(
+                                  task: task,
+                                  isEditing: false,
+                                )),
+                      );
+                    },
+                  );
+                },
+              ),
             );
           }))
         ]);
