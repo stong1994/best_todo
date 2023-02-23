@@ -138,20 +138,6 @@ class _TaskListState extends State<TaskList> {
     super.dispose();
   }
 
-  // List<Widget> _buildTask() {
-  //   List<Widget> taskActions = [];
-  //   for (int i = 0; i < _tasks.length; i++) {
-  //     taskActions.add(
-  //       TaskAction(
-  //         task: widget.tasks[i],
-  //         onTaskUpdated: onTaskUpdate,
-  //         onTaskDeleted: onTaskDelete,
-  //       ),
-  //     );
-  //   }
-  //   return taskActions;
-  // }
-
   void _addTask() {
     final newTask = Task(title: '', id: '');
     setState(() {
@@ -193,11 +179,8 @@ class _TaskListState extends State<TaskList> {
   @override
   void initState() {
     super.initState();
-    _tasks = TaskData().getTask(widget.important, widget.urgent);
     title = getTitle();
     _focusNode = FocusNode();
-    // taskActions = _buildTask();
-    // tasks = TaskData().getTask(widget.important, widget.urgent);
   }
 
   String getTitle() {
@@ -230,6 +213,7 @@ class _TaskListState extends State<TaskList> {
     // widget.onTaskUpdate(task);
     setState(() {
       // widget.tasks = List.from(widget.tasks);
+      TaskData().updateTask(task);
     });
   }
 
@@ -260,10 +244,8 @@ class _TaskListState extends State<TaskList> {
                       ]),
                   const SizedBox(height: 16),
                   Expanded(child:
-                      Consumer<TaskData>(builder: (context, taskData, child) {
-                    // return FutureBuilder<[]Task>(
-                    //   future: _futur
-                    // )
+                    Consumer<TaskData>(builder: (context, taskData, child) {
+                    _tasks = TaskData().getTask(widget.important, widget.urgent);
                     return Container(
                         decoration: BoxDecoration(
                           color: widget.taskListColor,

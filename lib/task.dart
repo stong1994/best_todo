@@ -39,6 +39,13 @@ class Task {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    'title': title,
+    'is_done': isDone,
+    'is_important': false,
+    'is_urgent': isDone,
+    'id': id,
+  };
 }
 
 
