@@ -1,13 +1,13 @@
-import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class Task {
   String title;
   bool isDone;
   String id;
+  bool isImportant;
+  bool isUrgent;
 
-  Task({required this.title, this.isDone = false, required this.id});
+  Task({required this.title, this.isDone = false, required this.id, this.isImportant = false, this.isUrgent = false});
 
   void toggleDone() {
     isDone = !isDone;
@@ -15,13 +15,16 @@ class Task {
 
   Task copyWith({
     String? title,
-    bool? isCompleted,
+    bool? isDone,
     String? id,
+    bool? isImportant,
+    bool? isUrgent,
   }) {
     return Task(
       title: title ?? this.title,
-      isDone: isCompleted ?? this.isDone,
+      isDone: isDone ?? this.isDone,
       id: id ?? this.id,
+      isImportant: isImportant ?? this.isDone,
     );
   }
 
@@ -36,14 +39,16 @@ class Task {
       id: json['id'],
       title: json['title'],
       isDone: json['is_done'],
+      isImportant: json['is_important'],
+      isUrgent: json['is_urgent'],
     );
   }
 
   Map<String, dynamic> toJson() => {
     'title': title,
     'is_done': isDone,
-    'is_important': false,
-    'is_urgent': isDone,
+    'is_important': isImportant,
+    'is_urgent': isUrgent,
     'id': id,
   };
 }
