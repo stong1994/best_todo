@@ -95,32 +95,32 @@ class TaskList extends StatefulWidget {
   final Color taskListColor;
   final bool important;
   final bool urgent;
-  late List<Task> tasks;
+  // late List<Task> tasks;
 
   TaskList({
     required this.backgroundColor,
     required this.taskListColor,
     required this.important,
     required this.urgent,
-  }) : tasks = TaskData().getTask(important, urgent);
+  });
 
   @override
   _TaskListState createState() => _TaskListState();
 
-  void onTaskDelete(Task task) {
-    tasks.remove(task);
-  }
+  // void onTaskDelete(Task task) {
+  //   tasks.remove(task);
+  // }
 
-  void onTaskToggle(Task task) {
-    task.toggleDone();
-  }
+  // void onTaskToggle(Task task) {
+  //   task.toggleDone();
+  // }
 
-  void onTaskUpdate(Task task) {
-    int idx = tasks.indexOf(task);
-    if (idx >= 0) {
-      tasks[idx] = task;
-    }
-  }
+  // void onTaskUpdate(Task task) {
+  //   int idx = tasks.indexOf(task);
+  //   if (idx >= 0) {
+  //     tasks[idx] = task;
+  //   }
+  // }
 }
 
 class _TaskListState extends State<TaskList> {
@@ -128,8 +128,9 @@ class _TaskListState extends State<TaskList> {
 
   late final FocusNode _focusNode;
   final _scrollController = ScrollController();
-  List<Widget> taskActions = [];  
+  List<Widget> taskActions = [];
 
+  late Future<List<Task>> _tasks;
 
   @override
   void dispose() {
@@ -137,60 +138,65 @@ class _TaskListState extends State<TaskList> {
     super.dispose();
   }
 
-  List<Widget> _buildTask() {
-    List<Widget> taskActions = [];  
-    for (int i = 0; i < widget.tasks.length; i++) {
-      taskActions.add(
-        TaskAction(
-          task: widget.tasks[i],
-          onTaskUpdated: onTaskUpdate,
-          onTaskDeleted: onTaskDelete,
-        ),
-      );
-    }
-    return taskActions;
-  }
+  // List<Widget> _buildTask() {
+  //   List<Widget> taskActions = [];
+  //   for (int i = 0; i < _tasks.length; i++) {
+  //     taskActions.add(
+  //       TaskAction(
+  //         task: widget.tasks[i],
+  //         onTaskUpdated: onTaskUpdate,
+  //         onTaskDeleted: onTaskDelete,
+  //       ),
+  //     );
+  //   }
+  //   return taskActions;
+  // }
 
   void _addTask() {
     final newTask = Task(title: '', id: '');
     setState(() {
-      widget.tasks.insert(0, newTask);
+      // widget.tasks.insert(0, newTask);
     });
     final newTaskFocusNode = FocusNode();
-    taskActions.add(TaskAction(task: newTask, onTaskUpdated: onTaskUpdate, onTaskDeleted: onTaskDelete, focusNode: newTaskFocusNode));
+    taskActions.add(TaskAction(
+        task: newTask,
+        onTaskUpdated: onTaskUpdate,
+        onTaskDeleted: onTaskDelete,
+        focusNode: newTaskFocusNode));
     newTaskFocusNode.requestFocus();
   }
-    // Timer(Duration(milliseconds: 50), () {
-    //   _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    //   FocusScope.of(context).requestFocus(_focusNode);
+  // Timer(Duration(milliseconds: 50), () {
+  //   _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+  //   FocusScope.of(context).requestFocus(_focusNode);
 
-    // });
+  // });
 
-    // Future.delayed(Duration(milliseconds: 300), () {
-    //   final index = widget.tasks.length - 1;
-    //   // final itemScrollController = ScrollController();
-    //   final scrollPosition = _scrollController.position;
+  // Future.delayed(Duration(milliseconds: 300), () {
+  //   final index = widget.tasks.length - 1;
+  //   // final itemScrollController = ScrollController();
+  //   final scrollPosition = _scrollController.position;
 
-    //   _scrollController.animateTo(
-    //     scrollPosition.maxScrollExtent,
-    //     duration: Duration(milliseconds: 300),
-    //     curve: Curves.easeOut,
-    //   );
+  //   _scrollController.animateTo(
+  //     scrollPosition.maxScrollExtent,
+  //     duration: Duration(milliseconds: 300),
+  //     curve: Curves.easeOut,
+  //   );
 
-    //   final focusNode = FocusNode();
-    //   FocusScope.of(context).requestFocus(focusNode);
-    //   WidgetsBinding.instance!.addPostFrameCallback((_) {
-    //     focusNode.requestFocus();
-    //   });
-    // });
+  //   final focusNode = FocusNode();
+  //   FocusScope.of(context).requestFocus(focusNode);
+  //   WidgetsBinding.instance!.addPostFrameCallback((_) {
+  //     focusNode.requestFocus();
+  //   });
+  // });
   // }
 
   @override
   void initState() {
     super.initState();
+    _tasks = TaskData().getTask(widget.important, widget.urgent);
     title = getTitle();
     _focusNode = FocusNode();
-    taskActions = _buildTask();
+    // taskActions = _buildTask();
     // tasks = TaskData().getTask(widget.important, widget.urgent);
   }
 
@@ -207,23 +213,23 @@ class _TaskListState extends State<TaskList> {
   }
 
   void onTaskDelete(Task task) {
-    widget.onTaskDelete(task);
+    // widget.onTaskDelete(task);
     setState(() {
-      widget.tasks = List.from(widget.tasks);
+      // widget.tasks = List.from(widget.tasks);
     });
   }
 
   void onTaskToggle(Task task) {
-    widget.onTaskToggle(task);
+    // widget.onTaskToggle(task);
     setState(() {
-      widget.tasks = List.from(widget.tasks);
+      // widget.tasks = List.from(widget.tasks);
     });
   }
 
   void onTaskUpdate(Task task) {
-    widget.onTaskUpdate(task);
+    // widget.onTaskUpdate(task);
     setState(() {
-      widget.tasks = List.from(widget.tasks);
+      // widget.tasks = List.from(widget.tasks);
     });
   }
 
@@ -231,57 +237,89 @@ class _TaskListState extends State<TaskList> {
   Widget build(BuildContext context) {
     return Expanded(
         child: Container(
-                margin: EdgeInsets.all(16),
-                color: widget.backgroundColor,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.all(16),
-                              child: Text(
-                                title,
-                                style: const TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
+            margin: EdgeInsets.all(16),
+            color: widget.backgroundColor,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.all(16),
+                          child: Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
                             ),
-                            IconButton(
-                                icon: Icon(Icons.add), onPressed: _addTask),
-                          ]),
-                      const SizedBox(height: 16),
-                      Expanded(child: Consumer<TaskData>(
-                          builder: (context, taskData, child) {
-                        return Container(
-                            decoration: BoxDecoration(
-                              color: widget.taskListColor,
-                            ),
-                            child: ListView(
-                              controller: _scrollController,
-                              children: _buildTask(),
-                            ),
-                            // child: ListView.builder(
-                            //   controller: _scrollController,
-                            //   itemCount: widget.tasks.length,
-                            //   itemBuilder: (context, index) {
-                            //     final task = widget.tasks[index];
-                            //     return TaskAction(
-                            //         task: task,
-                            //         onTaskUpdated: onTaskUpdate,
-                            //         onTaskDeleted: onTaskDelete);
-                            //   },
-                            // )
-                          );
-                      }))
-                    ])));
+                          ),
+                        ),
+                        IconButton(icon: Icon(Icons.add), onPressed: _addTask),
+                      ]),
+                  const SizedBox(height: 16),
+                  Expanded(child:
+                      Consumer<TaskData>(builder: (context, taskData, child) {
+                    // return FutureBuilder<[]Task>(
+                    //   future: _futur
+                    // )
+                    return Container(
+                        decoration: BoxDecoration(
+                          color: widget.taskListColor,
+                        ),
+                        child: FutureBuilder<List<Task>>(
+                            future: _tasks,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.done) {
+                                if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text("Error: ${snapshot.error}}"),
+                                  );
+                                } else {
+                                  List<Task> tasks = snapshot.data!;
+                                  return ListView.builder(
+                                      controller: _scrollController,
+                                      itemCount: tasks.length,
+                                      itemBuilder: (context, index) {
+                                        return TaskAction(
+                                            task: tasks[index],
+                                            onTaskUpdated: onTaskUpdate,
+                                            onTaskDeleted: onTaskDelete);
+                                      });
+                                }
+                              } else {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                            }));
+
+                    // return Container(
+                    //     decoration: BoxDecoration(
+                    //       color: widget.taskListColor,
+                    //     ),
+                    //     child: ListView(
+                    //       controller: _scrollController,
+                    //       children: _buildTask(),
+                    //     ),
+                    //     // child: ListView.builder(
+                    //     //   controller: _scrollController,
+                    //     //   itemCount: widget.tasks.length,
+                    //     //   itemBuilder: (context, index) {
+                    //     //     final task = widget.tasks[index];
+                    //     //     return TaskAction(
+                    //     //         task: task,
+                    //     //         onTaskUpdated: onTaskUpdate,
+                    //     //         onTaskDeleted: onTaskDelete);
+                    //     //   },
+                    //     // )
+                    //   );
+                  }))
+                ])));
   }
 }
-
-
 
 // class TaskList extends StatefulWidget {
 //   final bool important;
@@ -332,8 +370,6 @@ class _TaskListState extends State<TaskList> {
 //   }
 
 //   _TaskListState({required this.title, required this.color});
-
-
 
 //   @override
 //   void initState() {

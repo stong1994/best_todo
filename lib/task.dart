@@ -30,6 +30,15 @@ class Task {
   other is Task && 
     runtimeType == other.runtimeType &&
     id == other.id;
+
+  factory Task.fromJson(Map<String, dynamic> json) {
+    return Task(
+      id: json['id'],
+      title: json['title'],
+      isDone: json['is_done'],
+    );
+  }
+
 }
 
 
