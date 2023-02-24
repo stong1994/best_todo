@@ -199,16 +199,13 @@ class _TaskListState extends State<TaskList> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        // 延迟 200ms 设置焦点
-        Future.delayed(const Duration(milliseconds: 200), () {
-          FocusScope.of(context).requestFocus(_focusNode);
-        });
         return AlertDialog(
           title: const Text('添加任务'),
           backgroundColor: widget.backgroundColor.withOpacity(0.9),
-          content: SingleChildScrollView( 
-            child: TextField(
+          content:  SingleChildScrollView(
+            child:  TextField(
               focusNode: _focusNode,
+              autofocus: true,
               controller: _textEditingController,
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.symmetric(
@@ -240,5 +237,11 @@ class _TaskListState extends State<TaskList> {
         );
       },
     );
+
+    
+    // 延迟 200ms 设置焦点
+        // Future.delayed(const Duration(milliseconds: 200), () {
+        //   FocusScope.of(context).requestFocus(_focusNode);
+        // });
   }
 }
