@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'event_bus.dart';
+
 class Task {
   String title;
   bool isDone;
@@ -77,7 +79,6 @@ class TaskAction extends StatefulWidget {
 }
 
 class _TaskActionState extends State<TaskAction> {
-  late FocusNode _focusNode;
   late TextEditingController _textEditingController;
   bool _isEditing = false;
 
@@ -85,13 +86,21 @@ class _TaskActionState extends State<TaskAction> {
   void initState() {
     super.initState();
     _textEditingController = TextEditingController(text: widget.task.title);
-    _focusNode = widget.focusNode ?? FocusNode();
+    eventBus.on<int>().listen((hashCode) {
+      onOtherTaskEditing(hashCode);
+    });
   }
 
   @override
   void dispose() {
     _textEditingController.dispose();
     super.dispose();
+  }
+
+  onOtherTaskEditing(int hashCode) {
+    if (widget.hashCode != hashCode && _isEditing) {
+      _toggleEditing();
+    }
   }
 
   void _toggleEditing() {
@@ -117,6 +126,7 @@ class _TaskActionState extends State<TaskAction> {
     return GestureDetector(
       onTap: () {
         _toggleEditing();
+        eventBus.fire(widget.hashCode);
       },
       child: Row(
         children: [

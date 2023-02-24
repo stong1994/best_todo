@@ -8,6 +8,7 @@ class BestTodo extends StatefulWidget {
 }
 
 class _BestTodoState extends State<BestTodo> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +50,8 @@ class _BestTodoState extends State<BestTodo> {
               ),
             ),
           ],
-        ));
+        )
+      );
   }
 }
 
@@ -209,6 +211,7 @@ class _TaskListState extends State<TaskList> {
               autofocus: true,
               controller: _textEditingController,
               decoration: const InputDecoration(
+                // fillColor: Colors.white,
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 16.0,
                   vertical: 8.0,
