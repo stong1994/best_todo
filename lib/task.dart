@@ -97,11 +97,14 @@ class _TaskActionState extends State<TaskAction> {
   }
 
   void _updateTask(String newTitle) {
-    setState(() {
       widget.onTaskUpdated(widget.task.copyWith(title: newTitle));
-    });
-    _toggleEditing();
+    _toggleEditing(); // 上层会进行FutureBuilder，但是还是标记状态以保持逻辑完整
   }
+
+  void _toggleDone(bool isDone) {
+      widget.onTaskUpdated(widget.task.copyWith(isDone: isDone));
+  }
+
 
   void _deleteTask() {
     widget.onTaskDeleted(widget.task);
@@ -117,10 +120,7 @@ class _TaskActionState extends State<TaskAction> {
           Checkbox(
             value: widget.task.isDone,
             onChanged: (value) {
-              setState(() {
-                widget.task.isDone = value!;
-                widget.onTaskUpdated(widget.task);
-              });
+              _toggleDone(value!);
             },
           ),
           Expanded(

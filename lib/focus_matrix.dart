@@ -154,13 +154,6 @@ class _TaskListState extends State<TaskList> {
     
   }
 
-  void onTaskToggle(Task task) {
-    // widget.onTaskToggle(task);
-    setState(() {
-      // widget.tasks = List.from(widget.tasks);
-    });
-  }
-
   void onTaskUpdate(Task task) {
     setState(() {
       _taskData.updateTask(task);
@@ -195,9 +188,7 @@ class _TaskListState extends State<TaskList> {
                         ),
                         IconButton(icon: Icon(Icons.add), onPressed: _addTask),
                       ]),
-                  // const SizedBox(height: 16),
                   Expanded(child:
-                    // Consumer<TaskData>(builder: (context, taskData, child) {
                      Container(
                         decoration: BoxDecoration(
                           color: widget.taskListColor,
