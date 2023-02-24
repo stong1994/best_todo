@@ -7,7 +7,7 @@ class Task {
   bool isImportant;
   bool isUrgent;
 
-  Task({required this.title, this.isDone = false, required this.id, this.isImportant = false, this.isUrgent = false});
+  Task({this.title = "", this.isDone = false, this.id = "", this.isImportant = false, this.isUrgent = false});
 
   void toggleDone() {
     isDone = !isDone;

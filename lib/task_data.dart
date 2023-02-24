@@ -11,6 +11,7 @@ class TaskData {
     await Future.delayed(Duration(milliseconds: 200));
     return _tasks;
   }
+
   Future<List<Task>> fetchTasks() async {
     final response = await http.get(Uri.parse('http://127.0.0.1:8000/tasks'),
         headers: {"Content-Type": "application/json; charset=utf-8"});
@@ -18,6 +19,20 @@ class TaskData {
       List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       _tasks = List<Task>.from(data.map((json) => Task.fromJson(json)));
       return _tasks;
+    } else {
+      throw Exception('Failed to fetch tasks');
+    }
+  }
+
+  Future<Task> addTask(Task task) async {
+    final response = await http.post(Uri.parse('http://127.0.0.1:8000/task'),
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: jsonEncode(task));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
+      final task = Task.fromJson(data);
+      _tasks.add(task); 
+      return task;
     } else {
       throw Exception('Failed to fetch tasks');
     }

@@ -88,13 +88,6 @@ class _TaskListState extends State<TaskList> {
     super.dispose();
   }
 
-  void _addTask() {
-    final newTask = Task(title: '', id: '');
-    setState(() {
-      // widget.tasks.insert(0, newTask);
-    });
-  }
-
   // Timer(Duration(milliseconds: 50), () {
   //   _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
   //   FocusScope.of(context).requestFocus(_focusNode);
@@ -151,17 +144,28 @@ class _TaskListState extends State<TaskList> {
       _taskData.deleteTask(task);
       _tasks = _taskData.getTasksFromMem();
     });
-    
   }
 
   void onTaskUpdate(Task task) {
     setState(() {
-      _taskData.updateTask(task);
+      if (task.id == "") {
+        _taskData.addTask(task);
+      }else {
+        _taskData.updateTask(task);
+      }
       _tasks = _taskData.getTasksFromMem();
     });
   }
 
-  
+  void _addTask() {
+    setState(() {
+      _tasks.then((tasks){
+        // final task = .newTask(widget.important, widget.urgent);
+        tasks.add(Task(isImportant: widget.important, isUrgent: widget.urgent));
+        return tasks;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +176,7 @@ class _TaskListState extends State<TaskList> {
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  Row(
+                  Row( // 象限title
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Container(
@@ -186,7 +190,7 @@ class _TaskListState extends State<TaskList> {
                             ),
                           ),
                         ),
-                        IconButton(icon: Icon(Icons.add), onPressed: _addTask),
+                        IconButton(icon: Icon(Icons.add), onPressed: _addTask), // 添加任务按钮
                       ]),
                   Expanded(child:
                      Container(
