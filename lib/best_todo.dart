@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'task_data.dart';
 import 'task.dart';
@@ -91,7 +89,8 @@ class _TaskListState extends State<TaskList> {
   late String title;
 
   final _scrollController = ScrollController();
-  TextEditingController _textEditingController = TextEditingController();
+  final _textEditingController = TextEditingController();
+  FocusNode _focusNode = FocusNode();
 
   late final TaskData _taskData;
 
@@ -104,6 +103,7 @@ class _TaskListState extends State<TaskList> {
   void initState() {
     super.initState();
     title = widget.getTitle();
+    _taskData = TaskData();
   }
 
   @override
@@ -141,7 +141,7 @@ class _TaskListState extends State<TaskList> {
     });
   }
 
-  // 象限title
+  // 象限header
   Widget header() {
     return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -199,14 +199,27 @@ class _TaskListState extends State<TaskList> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        // 延迟 200ms 设置焦点
+        Future.delayed(const Duration(milliseconds: 200), () {
+          FocusScope.of(context).requestFocus(_focusNode);
+        });
         return AlertDialog(
           title: const Text('添加任务'),
-          content: TextField(
-            controller: _textEditingController,
-            decoration: const InputDecoration(
-              hintText: '输入任务',
-            ),
-          ),
+          backgroundColor: widget.backgroundColor.withOpacity(0.9),
+          content: SingleChildScrollView( 
+            child: TextField(
+              focusNode: _focusNode,
+              controller: _textEditingController,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                hintText: '请输入任务...',
+                border: UnderlineInputBorder(),
+              ),
+              
+          )),
           actions: [
             TextButton(
               child: const Text('取消'),
@@ -219,6 +232,7 @@ class _TaskListState extends State<TaskList> {
               onPressed: () {
                 String title = _textEditingController.text;
                 onTaskadd(title);
+                _textEditingController.clear();
                 Navigator.of(context).pop();
               },
             ),

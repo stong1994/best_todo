@@ -102,7 +102,7 @@ class _TaskActionState extends State<TaskAction> {
 
   void _updateTask(String newTitle) {
     widget.onTaskUpdated(widget.task.copyWith(title: newTitle));
-    _toggleEditing(); // 上层会进行FutureBuilder，但是还是标记状态以保持逻辑完整
+    _toggleEditing();
   }
 
   void _toggleDone(bool isDone) {
@@ -113,7 +113,7 @@ class _TaskActionState extends State<TaskAction> {
     widget.onTaskDeleted(widget.task);
   }
 
-  Widget _buildTaskRow() {
+  Widget _showTask() {
     return GestureDetector(
       onTap: () {
         _toggleEditing();
@@ -144,7 +144,7 @@ class _TaskActionState extends State<TaskAction> {
     );
   }
 
-  Widget _buildTaskField() {
+  Widget _editTask() {
     return TextFormField(
       controller: _textEditingController,
       autofocus: true,
@@ -152,17 +152,16 @@ class _TaskActionState extends State<TaskAction> {
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white,
-        hintText: 'Add a task',
-        contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+        contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15.0),
+          borderRadius: BorderRadius.circular(10.0),
           borderSide: BorderSide(
             width: 0.8,
             color: Colors.grey.shade400,
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15.0),
+          borderRadius: BorderRadius.circular(10.0),
           borderSide: BorderSide(
             width: 0.8,
             color: Colors.grey.shade400,
@@ -171,13 +170,13 @@ class _TaskActionState extends State<TaskAction> {
       ),
       onFieldSubmitted: (value) {
         _updateTask(value);
+        _textEditingController.clear();
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return _isEditing ? _buildTaskField() : _buildTaskRow();
-    // return _buildTaskRow();
+    return _isEditing? _editTask(): _showTask();
   }
 }
