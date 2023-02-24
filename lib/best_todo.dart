@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import 'task_data.dart';
 import 'task.dart';
 
-class FocusMatrix extends StatefulWidget {
+class BestTodo extends StatefulWidget {
   @override
-  _FocusMatrixState createState() => _FocusMatrixState();
+  _BestTodoState createState() => _BestTodoState();
 }
 
-class _FocusMatrixState extends State<FocusMatrix> {
+class _BestTodoState extends State<BestTodo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Focus Matrix'),
+          title: Text('Best Todo'),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -63,7 +63,6 @@ class TaskList extends StatefulWidget {
   final Color taskListColor;
   final bool important;
   final bool urgent;
-  // late List<Task> tasks;
 
   TaskList({
     required this.backgroundColor,
