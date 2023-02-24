@@ -29,7 +29,8 @@ class Task {
       title: title ?? this.title,
       isDone: isDone ?? this.isDone,
       id: id ?? this.id,
-      isImportant: isImportant ?? this.isDone,
+      isImportant: isImportant ?? this.isImportant,
+      isUrgent: isUrgent ?? this.isUrgent,
     );
   }
 
@@ -177,5 +178,6 @@ class _TaskActionState extends State<TaskAction> {
   @override
   Widget build(BuildContext context) {
     return _isEditing ? _buildTaskField() : _buildTaskRow();
+    // return _buildTaskRow();
   }
 }

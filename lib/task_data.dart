@@ -1,19 +1,19 @@
 import 'task.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:sprintf/sprintf.dart';
 
 class TaskData {
   List<Task> _tasks = [];
 
 
-  Future<List<Task>> getTasksFromMem() async {
-    print("aabbcc");
-    await Future.delayed(Duration(milliseconds: 200));
-    return _tasks;
+  Future<List<Task>> getTasksFromMem(bool important, bool urgent) async {
+    final t =  _tasks.where((task) => task.isImportant == important && task.isUrgent).toList();
+    return t;
   }
 
-  Future<List<Task>> fetchTasks() async {
-    final response = await http.get(Uri.parse('http://127.0.0.1:8000/tasks'),
+  Future<List<Task>> fetchTasks(bool important, bool urgent) async {
+    final response = await http.get(Uri.parse(sprintf('http://127.0.0.1:8000/tasks?important=%s&urgent=%s', [important, urgent])),
         headers: {"Content-Type": "application/json; charset=utf-8"});
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -61,7 +61,6 @@ class TaskData {
         headers: {"Content-Type": "application/json; charset=utf-8"});
     if (response.statusCode == 200) {
       _tasks.removeWhere((t) => t.id == task.id);
-      // notifyListeners();
       return;
     } else {
       throw Exception('Failed to delete task');

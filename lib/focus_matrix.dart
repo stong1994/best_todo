@@ -72,6 +72,18 @@ class TaskList extends StatefulWidget {
     required this.urgent,
   });
 
+  String getTitle() {
+    if (important && urgent) {
+      return "重要&紧急";
+    } else if (important && !urgent) {
+      return "重要&不紧急";
+    } else if (!important && urgent) {
+      return "不重要&紧急";
+    } else {
+      return "不重要&不紧急";
+    }
+  }
+
   @override
   _TaskListState createState() => _TaskListState();
 }
@@ -80,82 +92,53 @@ class _TaskListState extends State<TaskList> {
   late String title;
 
   final _scrollController = ScrollController();
+  TextEditingController _textEditingController = TextEditingController();
+
   late final TaskData _taskData;
-  late Future<List<Task>> _tasks;
 
   @override
   void dispose() {
     super.dispose();
   }
 
-  // Timer(Duration(milliseconds: 50), () {
-  //   _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-  //   FocusScope.of(context).requestFocus(_focusNode);
-
-  // });
-
   @override
   void initState() {
     super.initState();
-    title = getTitle();
-    _taskData = TaskData();
-    _tasks = _taskData.fetchTasks();
-    // taskDataRepository = TaskData(provider: taskDataProvider);
+    title = widget.getTitle();
   }
 
-  String getTitle() {
-    if (widget.important && widget.urgent) {
-      return "重要&紧急";
-    } else if (widget.important && !widget.urgent) {
-      return "重要&不紧急";
-    } else if (!widget.important && widget.urgent) {
-      return "不重要&紧急";
-    } else {
-      return "不重要&不紧急";
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        child: Container(
+            margin: EdgeInsets.all(16),
+            color: widget.backgroundColor,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  header(),
+                  mainArea(),
+                ])));
   }
 
   void onTaskDelete(Task task) {
-    // widget.onTaskDelete(task);
     setState(() {
       _taskData.deleteTask(task);
-      _tasks = _taskData.getTasksFromMem();
     });
   }
 
   void onTaskUpdate(Task task) {
     setState(() {
-      if (task.id == "") {
-        _taskData.addTask(task);
-      } else {
-        _taskData.updateTask(task);
-      }
-      _tasks = _taskData.getTasksFromMem();
+      _taskData.updateTask(task);
     });
   }
 
-  void _addTask() {
+  void onTaskadd(String title) {
     setState(() {
-      _tasks.then((tasks) {
-        tasks.add(Task(isImportant: widget.important, isUrgent: widget.urgent));
-        Future.delayed(Duration(milliseconds: 300), () {
-          final index = tasks.length - 1;
-          final scrollPosition = _scrollController.position;
-
-          _scrollController.animateTo(
-            scrollPosition.maxScrollExtent,
-            duration: Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-
-          final focusNode = FocusNode();
-          FocusScope.of(context).requestFocus(focusNode);
-          WidgetsBinding.instance!.addPostFrameCallback((_) {
-            focusNode.requestFocus();
-          });
-        });
-        return tasks;
-      });
+      _taskData.addTask(Task(
+          title: title,
+          isImportant: widget.important,
+          isUrgent: widget.urgent));
     });
   }
 
@@ -175,7 +158,7 @@ class _TaskListState extends State<TaskList> {
               ),
             ),
           ),
-          IconButton(icon: Icon(Icons.add), onPressed: _addTask), // 添加任务按钮
+          IconButton(icon: Icon(Icons.add), onPressed: _addArea), // 添加任务按钮
         ]);
   }
 
@@ -187,7 +170,7 @@ class _TaskListState extends State<TaskList> {
               color: widget.taskListColor,
             ),
             child: FutureBuilder<List<Task>>(
-                future: _tasks,
+                future: _taskData.fetchTasks(widget.important, widget.urgent),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState != ConnectionState.done) {
                     return const Center(
@@ -212,17 +195,37 @@ class _TaskListState extends State<TaskList> {
                 })));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-        child: Container(
-            margin: EdgeInsets.all(16),
-            color: widget.backgroundColor,
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  header(),
-                  mainArea(),
-                ])));
+  // 添加任务弹窗
+  void _addArea() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('添加任务'),
+          content: TextField(
+            controller: _textEditingController,
+            decoration: const InputDecoration(
+              hintText: '输入任务',
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('取消'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('完成'),
+              onPressed: () {
+                String title = _textEditingController.text;
+                onTaskadd(title);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
