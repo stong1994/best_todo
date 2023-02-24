@@ -7,7 +7,12 @@ class Task {
   bool isImportant;
   bool isUrgent;
 
-  Task({this.title = "", this.isDone = false, this.id = "", this.isImportant = false, this.isUrgent = false});
+  Task(
+      {this.title = "",
+      this.isDone = false,
+      this.id = "",
+      this.isImportant = false,
+      this.isUrgent = false});
 
   void toggleDone() {
     isDone = !isDone;
@@ -29,10 +34,9 @@ class Task {
   }
 
   @override
-  bool operator ==(Object other) => identical(this, other) ||
-  other is Task && 
-    runtimeType == other.runtimeType &&
-    id == other.id;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Task && runtimeType == other.runtimeType && id == other.id;
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
@@ -45,14 +49,13 @@ class Task {
   }
 
   Map<String, dynamic> toJson() => {
-    'title': title,
-    'is_done': isDone,
-    'is_important': isImportant,
-    'is_urgent': isUrgent,
-    'id': id,
-  };
+        'title': title,
+        'is_done': isDone,
+        'is_important': isImportant,
+        'is_urgent': isUrgent,
+        'id': id,
+      };
 }
-
 
 class TaskAction extends StatefulWidget {
   final Task task;
@@ -97,14 +100,13 @@ class _TaskActionState extends State<TaskAction> {
   }
 
   void _updateTask(String newTitle) {
-      widget.onTaskUpdated(widget.task.copyWith(title: newTitle));
+    widget.onTaskUpdated(widget.task.copyWith(title: newTitle));
     _toggleEditing(); // 上层会进行FutureBuilder，但是还是标记状态以保持逻辑完整
   }
 
   void _toggleDone(bool isDone) {
-      widget.onTaskUpdated(widget.task.copyWith(isDone: isDone));
+    widget.onTaskUpdated(widget.task.copyWith(isDone: isDone));
   }
-
 
   void _deleteTask() {
     widget.onTaskDeleted(widget.task);
@@ -145,8 +147,26 @@ class _TaskActionState extends State<TaskAction> {
     return TextFormField(
       controller: _textEditingController,
       autofocus: true,
+      style: TextStyle(fontSize: 18.0, color: Colors.black87),
       decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.white,
         hintText: 'Add a task',
+        contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15.0),
+          borderSide: BorderSide(
+            width: 0.8,
+            color: Colors.grey.shade400,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15.0),
+          borderSide: BorderSide(
+            width: 0.8,
+            color: Colors.grey.shade400,
+          ),
+        ),
       ),
       onFieldSubmitted: (value) {
         _updateTask(value);

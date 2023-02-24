@@ -94,28 +94,6 @@ class _TaskListState extends State<TaskList> {
 
   // });
 
-  // Future.delayed(Duration(milliseconds: 300), () {
-  //   final index = widget.tasks.length - 1;
-  //   // final itemScrollController = ScrollController();
-  //   final scrollPosition = _scrollController.position;
-
-  //   _scrollController.animateTo(
-  //     scrollPosition.maxScrollExtent,
-  //     duration: Duration(milliseconds: 300),
-  //     curve: Curves.easeOut,
-  //   );
-
-  //   final focusNode = FocusNode();
-  //   FocusScope.of(context).requestFocus(focusNode);
-  //   WidgetsBinding.instance!.addPostFrameCallback((_) {
-  //     focusNode.requestFocus();
-  //   });
-  // });
-  // }
-
-// final taskDataProvider = TaskData();
-//   late final TaskData taskDataRepository;
-
   @override
   void initState() {
     super.initState();
@@ -137,7 +115,6 @@ class _TaskListState extends State<TaskList> {
     }
   }
 
-  
   void onTaskDelete(Task task) {
     // widget.onTaskDelete(task);
     setState(() {
@@ -150,7 +127,7 @@ class _TaskListState extends State<TaskList> {
     setState(() {
       if (task.id == "") {
         _taskData.addTask(task);
-      }else {
+      } else {
         _taskData.updateTask(task);
       }
       _tasks = _taskData.getTasksFromMem();
@@ -159,12 +136,80 @@ class _TaskListState extends State<TaskList> {
 
   void _addTask() {
     setState(() {
-      _tasks.then((tasks){
-        // final task = .newTask(widget.important, widget.urgent);
+      _tasks.then((tasks) {
         tasks.add(Task(isImportant: widget.important, isUrgent: widget.urgent));
+        Future.delayed(Duration(milliseconds: 300), () {
+          final index = tasks.length - 1;
+          final scrollPosition = _scrollController.position;
+
+          _scrollController.animateTo(
+            scrollPosition.maxScrollExtent,
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+
+          final focusNode = FocusNode();
+          FocusScope.of(context).requestFocus(focusNode);
+          WidgetsBinding.instance!.addPostFrameCallback((_) {
+            focusNode.requestFocus();
+          });
+        });
         return tasks;
       });
     });
+  }
+
+  // 象限title
+  Widget header() {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          IconButton(icon: Icon(Icons.add), onPressed: _addTask), // 添加任务按钮
+        ]);
+  }
+
+  // 任务列表主体
+  Widget mainArea() {
+    return Expanded(
+        child: Container(
+            decoration: BoxDecoration(
+              color: widget.taskListColor,
+            ),
+            child: FutureBuilder<List<Task>>(
+                future: _tasks,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text("Error: ${snapshot.error}}"),
+                    );
+                  }
+                  List<Task> tasks = snapshot.data!;
+                  return ListView.builder(
+                      controller: _scrollController,
+                      itemCount: tasks.length,
+                      itemBuilder: (context, index) {
+                        return TaskAction(
+                            task: tasks[index],
+                            onTaskUpdated: onTaskUpdate,
+                            onTaskDeleted: onTaskDelete);
+                      });
+                })));
   }
 
   @override
@@ -176,56 +221,8 @@ class _TaskListState extends State<TaskList> {
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  Row( // 象限title
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          child: Text(
-                            title,
-                            style: const TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        IconButton(icon: Icon(Icons.add), onPressed: _addTask), // 添加任务按钮
-                      ]),
-                  Expanded(child:
-                     Container(
-                        decoration: BoxDecoration(
-                          color: widget.taskListColor,
-                        ),
-                        child: FutureBuilder<List<Task>>(
-                            future: _tasks,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.done) {
-                                if (snapshot.hasError) {
-                                  return Center(
-                                    child: Text("Error: ${snapshot.error}}"),
-                                  );
-                                } else {
-                                  List<Task> tasks = snapshot.data!;
-                                  return ListView.builder(
-                                      controller: _scrollController,
-                                      itemCount: tasks.length,
-                                      itemBuilder: (context, index) {
-                                        return TaskAction(
-                                            task: tasks[index],
-                                            onTaskUpdated: onTaskUpdate,
-                                            onTaskDeleted: onTaskDelete);
-                                      });
-                                }
-                              } else {
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-                            })
-                            )
-                  )
+                  header(),
+                  mainArea(),
                 ])));
   }
 }
