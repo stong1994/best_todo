@@ -11,9 +11,6 @@ class _BestTodoState extends State<BestTodo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Best Todo'),
-        ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -157,7 +154,7 @@ class _TaskListState extends State<TaskList> {
               ),
             ),
           ),
-          IconButton(icon: Icon(Icons.add), onPressed: _addArea), // 添加任务按钮
+          IconButton(icon: const Icon(Icons.add), onPressed: _addArea), // 添加任务按钮
         ]);
   }
 
@@ -200,7 +197,11 @@ class _TaskListState extends State<TaskList> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('添加任务'),
+          title: const Text('添加任务', style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              )),
           backgroundColor: widget.backgroundColor.withOpacity(0.9),
           content:  SingleChildScrollView(
             child:  TextField(
@@ -212,7 +213,11 @@ class _TaskListState extends State<TaskList> {
                   horizontal: 16.0,
                   vertical: 8.0,
                 ),
-                hintText: '请输入任务...',
+                hintText: '请描述任务...',
+                hintStyle: TextStyle(
+                  color: Color.fromARGB(255, 235, 186, 186), 
+                  fontSize: 16,
+                ),
                 border: UnderlineInputBorder(),
               ),
               
@@ -237,11 +242,5 @@ class _TaskListState extends State<TaskList> {
         );
       },
     );
-
-    
-    // 延迟 200ms 设置焦点
-        // Future.delayed(const Duration(milliseconds: 200), () {
-        //   FocusScope.of(context).requestFocus(_focusNode);
-        // });
   }
 }
