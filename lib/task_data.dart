@@ -3,17 +3,28 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:sprintf/sprintf.dart';
 
-class TaskData {
+abstract class TaskData {
+  Future<List<Task>> getTasksFromMem(bool important, bool urgent);
+  Future<List<Task>> fetchTasks(bool important, bool urgent);
+  Future<Task> addTask(Task task);
+  Future<Task> updateTask(Task task);
+  Future deleteTask(Task task);
+}
+
+class ApiData implements TaskData {
   List<Task> _tasks = [];
 
-
   Future<List<Task>> getTasksFromMem(bool important, bool urgent) async {
-    final t =  _tasks.where((task) => task.isImportant == important && task.isUrgent).toList();
+    final t = _tasks
+        .where((task) => task.isImportant == important && task.isUrgent)
+        .toList();
     return t;
   }
 
   Future<List<Task>> fetchTasks(bool important, bool urgent) async {
-    final response = await http.get(Uri.parse(sprintf('http://127.0.0.1:8000/tasks?important=%s&urgent=%s', [important, urgent])),
+    final response = await http.get(
+        Uri.parse(sprintf('http://127.0.0.1:8000/tasks?important=%s&urgent=%s',
+            [important, urgent])),
         headers: {"Content-Type": "application/json; charset=utf-8"});
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -31,7 +42,7 @@ class TaskData {
     if (response.statusCode == 200) {
       final data = jsonDecode(utf8.decode(response.bodyBytes));
       final task = Task.fromJson(data);
-      _tasks.add(task); 
+      _tasks.add(task);
       return task;
     } else {
       throw Exception('Failed to fetch tasks');

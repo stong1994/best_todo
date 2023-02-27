@@ -8,50 +8,48 @@ class BestTodo extends StatefulWidget {
 }
 
 class _BestTodoState extends State<BestTodo> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TaskList(
-                      backgroundColor: Color.fromARGB(255, 246, 148, 129),
-                      taskListColor: Color.fromARGB(255, 187, 152, 145),
-                      important: true,
-                      urgent: true),
-                  TaskList(
-                      backgroundColor: Color.fromARGB(211, 139, 207, 93),
-                      taskListColor: Color.fromARGB(211, 192, 237, 162),
-                      important: true,
-                      urgent: false),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TaskList(
-                      backgroundColor: Color.fromARGB(255, 92, 199, 249),
-                      taskListColor: Color.fromARGB(255, 161, 205, 226),
-                      important: false,
-                      urgent: true),
-                  TaskList(
-                      backgroundColor: Color.fromARGB(255, 158, 160, 158),
-                      taskListColor: Color.fromARGB(255, 191, 193, 191),
-                      important: false,
-                      urgent: false),
-                ],
-              ),
-            ),
-          ],
-        )
-      );
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TaskList(
+                  backgroundColor: Color.fromARGB(255, 246, 148, 129),
+                  taskListColor: Color.fromARGB(255, 187, 152, 145),
+                  important: true,
+                  urgent: true),
+              TaskList(
+                  backgroundColor: Color.fromARGB(211, 139, 207, 93),
+                  taskListColor: Color.fromARGB(211, 192, 237, 162),
+                  important: true,
+                  urgent: false),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TaskList(
+                  backgroundColor: Color.fromARGB(255, 92, 199, 249),
+                  taskListColor: Color.fromARGB(255, 161, 205, 226),
+                  important: false,
+                  urgent: true),
+              TaskList(
+                  backgroundColor: Color.fromARGB(255, 158, 160, 158),
+                  taskListColor: Color.fromARGB(255, 191, 193, 191),
+                  important: false,
+                  urgent: false),
+            ],
+          ),
+        ),
+      ],
+    ));
   }
 }
 
@@ -102,7 +100,7 @@ class _TaskListState extends State<TaskList> {
   void initState() {
     super.initState();
     title = widget.getTitle();
-    _taskData = TaskData();
+    _taskData = ApiData();
   }
 
   @override
@@ -156,7 +154,8 @@ class _TaskListState extends State<TaskList> {
               ),
             ),
           ),
-          IconButton(icon: const Icon(Icons.add), onPressed: _addArea), // 添加任务按钮
+          IconButton(
+              icon: const Icon(Icons.add), onPressed: _addArea), // 添加任务按钮
         ]);
   }
 
@@ -199,31 +198,31 @@ class _TaskListState extends State<TaskList> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('添加任务', style: TextStyle(
+          title: const Text('添加任务',
+              style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
               )),
           backgroundColor: widget.backgroundColor.withOpacity(0.9),
-          content:  SingleChildScrollView(
-            child:  TextField(
-              focusNode: _focusNode,
-              autofocus: true,
-              controller: _textEditingController,
-              decoration: const InputDecoration(
-                // fillColor: Colors.white,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
-                hintText: '请描述任务...',
-                hintStyle: TextStyle(
-                  color: Color.fromARGB(255, 235, 186, 186), 
-                  fontSize: 16,
-                ),
-                border: UnderlineInputBorder(),
+          content: SingleChildScrollView(
+              child: TextField(
+            focusNode: _focusNode,
+            autofocus: true,
+            controller: _textEditingController,
+            decoration: const InputDecoration(
+              // fillColor: Colors.white,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
               ),
-              
+              hintText: '请描述任务...',
+              hintStyle: TextStyle(
+                color: Color.fromARGB(255, 235, 186, 186),
+                fontSize: 16,
+              ),
+              border: UnderlineInputBorder(),
+            ),
           )),
           actions: [
             TextButton(
