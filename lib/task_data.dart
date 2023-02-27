@@ -2,18 +2,49 @@ import 'task.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:sprintf/sprintf.dart';
+import 'package:uuid/uuid.dart';
 
 abstract class TaskData {
-  Future<List<Task>> getTasksFromMem(bool important, bool urgent);
   Future<List<Task>> fetchTasks(bool important, bool urgent);
   Future<Task> addTask(Task task);
   Future<Task> updateTask(Task task);
   Future deleteTask(Task task);
 }
 
+class MemData implements TaskData {
+  List<Task> _tasks = [];
+  @override
+  Future<Task> addTask(Task task) {
+    task.id = Uuid().v4();
+    _tasks.add(task);
+    return Future.value(task);
+  }
+
+  @override
+  Future deleteTask(Task task) {
+    _tasks.removeWhere((t) => t.id == task.id);
+    return Future.value(null);
+  }
+
+  @override
+  Future<List<Task>> fetchTasks(bool important, bool urgent) {
+    return Future.value(_tasks);
+  }
+
+  @override
+  Future<Task> updateTask(Task task) {
+    final idx = _tasks.indexWhere((t) => t.id == task.id);
+    if (idx >= 0) {
+      _tasks[idx] = task;
+    }
+    return Future.value(task);
+  }
+}
+
 class ApiData implements TaskData {
   List<Task> _tasks = [];
 
+  // deprecated
   Future<List<Task>> getTasksFromMem(bool important, bool urgent) async {
     final t = _tasks
         .where((task) => task.isImportant == important && task.isUrgent)
