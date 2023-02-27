@@ -1,14 +1,67 @@
+import 'package:path/path.dart';
+
 import 'task.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:sprintf/sprintf.dart';
 import 'package:uuid/uuid.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:flutter/widgets.dart';
 
 abstract class TaskData {
   Future<List<Task>> fetchTasks(bool important, bool urgent);
   Future<Task> addTask(Task task);
   Future<Task> updateTask(Task task);
   Future deleteTask(Task task);
+}
+
+class SqliteData implements TaskData {
+  late Database db;
+  final TABLE = "tasks";
+  // WidgetsFlutterBinding.ensureInitialized();
+  Future<Database> createDatabase() async {
+    return await openDatabase(
+      join(await getDatabasesPath(), 'task.db'),
+      version: 1,
+      onCreate: (db, version) {
+        db.execute(
+            'CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT, is_done INTEGER, is_important INTEGER, is_urgent INTEGER)');
+      },
+    );
+  }
+
+  @override
+  Future<Task> addTask(Task task) async {
+    task.id = Uuid().v4();
+    await db.insert(TABLE, task.toJson());
+    return task;
+  }
+
+  @override
+  Future deleteTask(Task task) async {
+    await db.delete(
+      TABLE,
+      where: 'id = ?',
+      whereArgs: [task.id],
+    );
+  }
+
+  @override
+  Future<List<Task>> fetchTasks(bool important, bool urgent) async {
+    final tasks = await db.query(TABLE);
+    return List.generate(tasks.length, (index) => Task.fromJson(tasks[index]));
+  }
+
+  @override
+  Future<Task> updateTask(Task task) async {
+    await db.update(
+      TABLE,
+      task.toJson(),
+      where: 'id = ?',
+      whereArgs: [task.id],
+    );
+    return task;
+  }
 }
 
 class MemData implements TaskData {
