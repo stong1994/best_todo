@@ -51,6 +51,15 @@ class Task {
     );
   }
 
+  factory Task.fromSqlite(Map<String, dynamic> json) {
+    return Task(
+        id: json['id'],
+        title: json['title'],
+        isDone: json['is_done'] == 1 ? true : false,
+        isImportant: json['is_important'] == 1 ? true : false,
+        isUrgent: json['is_urgent'] == 1 ? true : false);
+  }
+
   Map<String, dynamic> toJson() => {
         'title': title,
         'is_done': isDone,
@@ -187,6 +196,6 @@ class _TaskActionState extends State<TaskAction> {
 
   @override
   Widget build(BuildContext context) {
-    return _isEditing? _editTask(): _showTask();
+    return _isEditing ? _editTask() : _showTask();
   }
 }

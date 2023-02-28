@@ -100,7 +100,7 @@ class _TaskListState extends State<TaskList> {
   void initState() {
     super.initState();
     title = widget.getTitle();
-    _taskData = MemData();
+    _taskData = SqliteData();
   }
 
   @override

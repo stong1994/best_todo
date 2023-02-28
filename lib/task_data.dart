@@ -16,12 +16,11 @@ abstract class TaskData {
 }
 
 class SqliteData implements TaskData {
-  late Database db;
   final TABLE = "tasks";
   // WidgetsFlutterBinding.ensureInitialized();
   Future<Database> createDatabase() async {
     return await openDatabase(
-      join(await getDatabasesPath(), 'task.db'),
+      join(await getDatabasesPath(), 'best_todo.db'),
       version: 1,
       onCreate: (db, version) {
         db.execute(
@@ -32,6 +31,7 @@ class SqliteData implements TaskData {
 
   @override
   Future<Task> addTask(Task task) async {
+    final db = await createDatabase();
     task.id = Uuid().v4();
     await db.insert(TABLE, task.toJson());
     return task;
@@ -39,6 +39,7 @@ class SqliteData implements TaskData {
 
   @override
   Future deleteTask(Task task) async {
+    final db = await createDatabase();
     await db.delete(
       TABLE,
       where: 'id = ?',
@@ -48,12 +49,18 @@ class SqliteData implements TaskData {
 
   @override
   Future<List<Task>> fetchTasks(bool important, bool urgent) async {
-    final tasks = await db.query(TABLE);
-    return List.generate(tasks.length, (index) => Task.fromJson(tasks[index]));
+    final db = await createDatabase();
+    final tasks = await db.query(TABLE,
+        columns: ['id', 'title', 'is_done', 'is_important', 'is_urgent'],
+        where: 'is_important = ? and is_urgent = ?',
+        whereArgs: [important, urgent]);
+    return List.generate(
+        tasks.length, (index) => Task.fromSqlite(tasks[index]));
   }
 
   @override
   Future<Task> updateTask(Task task) async {
+    final db = await createDatabase();
     await db.update(
       TABLE,
       task.toJson(),
