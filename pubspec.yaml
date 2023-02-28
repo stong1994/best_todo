@@ -38,6 +38,7 @@ dependencies:
   uuid: ^3.0.4
   sqflite: ^2.0.0+3
   path: ^1.8.2
+  sprintf: ^7.0.0
 
 dev_dependencies:
   flutter_test:

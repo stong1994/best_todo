@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'event_bus.dart';
+import '../event/event_bus.dart';
 
 class Task {
   String title;

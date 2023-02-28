@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'task_data.dart';
-import 'task.dart';
+import 'db/task_data.dart';
+import 'db/from_sqlite.dart';
+import 'model/task.dart';
 
 class BestTodo extends StatefulWidget {
   @override
