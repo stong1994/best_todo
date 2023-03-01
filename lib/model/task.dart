@@ -36,10 +36,10 @@ class Task {
     );
   }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Task && runtimeType == other.runtimeType && id == other.id;
+  // @override
+  // bool operator ==(Object other) =>
+  //     identical(this, other) ||
+  //     other is Task && runtimeType == other.runtimeType && id == other.id;
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
@@ -163,7 +163,7 @@ class _TaskActionState extends State<TaskAction> {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             onPressed: _deleteTask,
           ),
         ],
