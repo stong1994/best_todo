@@ -4,6 +4,12 @@ import 'package:uuid/uuid.dart';
 
 class MemData implements TaskData {
   List<Task> _tasks = [];
+
+  @override
+  Future<void> clean() async {
+    _tasks = [];
+  }
+
   @override
   Future<Task> addTask(Task task) {
     task.id = Uuid().v4();

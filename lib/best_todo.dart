@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'config/config.dart';
-import 'db/from_api.dart';
-import 'db/from_mem.dart';
 import 'db/task_data.dart';
-import 'db/from_sqlite.dart';
 import 'model/task.dart';
 
 class BestTodo extends StatefulWidget {
@@ -12,48 +8,62 @@ class BestTodo extends StatefulWidget {
 }
 
 class _BestTodoState extends State<BestTodo> {
+  void onClean() {
+    setState(() {
+      getTaskData().clean();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.cleaning_services_outlined),
+              onPressed: onClean,
+            ),
+          ],
+        ),
         body: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TaskList(
-                  backgroundColor: Color.fromARGB(255, 246, 148, 129),
-                  taskListColor: Color.fromARGB(255, 187, 152, 145),
-                  important: true,
-                  urgent: true),
-              TaskList(
-                  backgroundColor: Color.fromARGB(211, 139, 207, 93),
-                  taskListColor: Color.fromARGB(211, 192, 237, 162),
-                  important: true,
-                  urgent: false),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TaskList(
-                  backgroundColor: Color.fromARGB(255, 92, 199, 249),
-                  taskListColor: Color.fromARGB(255, 161, 205, 226),
-                  important: false,
-                  urgent: true),
-              TaskList(
-                  backgroundColor: Color.fromARGB(255, 158, 160, 158),
-                  taskListColor: Color.fromARGB(255, 191, 193, 191),
-                  important: false,
-                  urgent: false),
-            ],
-          ),
-        ),
-      ],
-    ));
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TaskList(
+                      backgroundColor: Color.fromARGB(255, 246, 148, 129),
+                      taskListColor: Color.fromARGB(255, 187, 152, 145),
+                      important: true,
+                      urgent: true),
+                  TaskList(
+                      backgroundColor: Color.fromARGB(211, 139, 207, 93),
+                      taskListColor: Color.fromARGB(211, 192, 237, 162),
+                      important: true,
+                      urgent: false),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TaskList(
+                      backgroundColor: Color.fromARGB(255, 92, 199, 249),
+                      taskListColor: Color.fromARGB(255, 161, 205, 226),
+                      important: false,
+                      urgent: true),
+                  TaskList(
+                      backgroundColor: Color.fromARGB(255, 158, 160, 158),
+                      taskListColor: Color.fromARGB(255, 191, 193, 191),
+                      important: false,
+                      urgent: false),
+                ],
+              ),
+            ),
+          ],
+        ));
   }
 }
 
@@ -88,12 +98,11 @@ class TaskList extends StatefulWidget {
 
 class _TaskListState extends State<TaskList> {
   late String title;
+  late final TaskData _taskData;
 
   final _scrollController = ScrollController();
   final _textEditingController = TextEditingController();
   FocusNode _focusNode = FocusNode();
-
-  late final TaskData _taskData;
 
   @override
   void dispose() {
@@ -104,13 +113,7 @@ class _TaskListState extends State<TaskList> {
   void initState() {
     super.initState();
     title = widget.getTitle();
-    if (storeType == 'mem') {
-      _taskData = MemData();
-    } else if (storeType == 'api') {
-      _taskData = ApiData();
-    } else {
-      _taskData = SqliteData();
-    }
+    _taskData = getTaskData();
   }
 
   @override

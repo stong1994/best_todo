@@ -67,6 +67,14 @@ class Task {
         'is_urgent': isUrgent,
         'id': id,
       };
+
+  Map<String, dynamic> toSqlite() => {
+        'title': title,
+        'is_done': isDone ? 1 : 0,
+        'is_important': isImportant ? 1 : 0,
+        'is_urgent': isUrgent ? 1 : 0,
+        'id': id,
+      };
 }
 
 class TaskAction extends StatefulWidget {

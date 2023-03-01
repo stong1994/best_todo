@@ -8,14 +8,6 @@ import 'dart:convert';
 class ApiData implements TaskData {
   List<Task> _tasks = [];
 
-  // deprecated
-  Future<List<Task>> getTasksFromMem(bool important, bool urgent) async {
-    final t = _tasks
-        .where((task) => task.isImportant == important && task.isUrgent)
-        .toList();
-    return t;
-  }
-
   @override
   Future<List<Task>> fetchTasks(bool important, bool urgent) async {
     final response = await http.get(
@@ -68,6 +60,18 @@ class ApiData implements TaskData {
         headers: {"Content-Type": "application/json; charset=utf-8"});
     if (response.statusCode == 200) {
       _tasks.removeWhere((t) => t.id == task.id);
+      return;
+    } else {
+      throw Exception('Failed to delete task');
+    }
+  }
+
+  @override
+  Future<void> clean() async {
+    final response = await http.delete(Uri.parse('$apiUrl/tasks'),
+        headers: {"Content-Type": "application/json; charset=utf-8"});
+    if (response.statusCode == 200) {
+      _tasks = [];
       return;
     } else {
       throw Exception('Failed to delete task');

@@ -5,8 +5,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../config/config.dart';
 
-// import 'dart:convert';
-
 class SqliteData implements TaskData {
   // WidgetsFlutterBinding.ensureInitialized();
   Future<Database> createDatabase() async {
@@ -21,10 +19,17 @@ class SqliteData implements TaskData {
   }
 
   @override
+  Future<void> clean() async {
+    final db = await createDatabase();
+    await db.delete(sqliteTableName);
+    return;
+  }
+
+  @override
   Future<Task> addTask(Task task) async {
     final db = await createDatabase();
     task.id = Uuid().v4();
-    await db.insert(sqliteTableName, task.toJson());
+    await db.insert(sqliteTableName, task.toSqlite());
     return task;
   }
 
@@ -44,7 +49,7 @@ class SqliteData implements TaskData {
     final tasks = await db.query(sqliteTableName,
         columns: ['id', 'title', 'is_done', 'is_important', 'is_urgent'],
         where: 'is_important = ? and is_urgent = ?',
-        whereArgs: [important, urgent]);
+        whereArgs: [important ? 1 : 0, urgent ? 1 : 0]);
     return List.generate(
         tasks.length, (index) => Task.fromSqlite(tasks[index]));
   }
@@ -54,7 +59,7 @@ class SqliteData implements TaskData {
     final db = await createDatabase();
     await db.update(
       sqliteTableName,
-      task.toJson(),
+      task.toSqlite(),
       where: 'id = ?',
       whereArgs: [task.id],
     );
