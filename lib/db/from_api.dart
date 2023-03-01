@@ -1,7 +1,8 @@
+import 'package:best_todo/config/config.dart';
+
 import '../model/task.dart';
 import './task_data.dart';
 import 'package:http/http.dart' as http;
-import 'package:sprintf/sprintf.dart';
 import 'dart:convert';
 
 class ApiData implements TaskData {
@@ -15,10 +16,10 @@ class ApiData implements TaskData {
     return t;
   }
 
+  @override
   Future<List<Task>> fetchTasks(bool important, bool urgent) async {
     final response = await http.get(
-        Uri.parse(sprintf('http://127.0.0.1:8000/tasks?important=%s&urgent=%s',
-            [important, urgent])),
+        Uri.parse('$apiUrl/tasks?important=$important&urgent=$urgent'),
         headers: {"Content-Type": "application/json; charset=utf-8"});
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
@@ -29,8 +30,9 @@ class ApiData implements TaskData {
     }
   }
 
+  @override
   Future<Task> addTask(Task task) async {
-    final response = await http.post(Uri.parse('http://127.0.0.1:8000/task'),
+    final response = await http.post(Uri.parse('$apiUrl/task'),
         headers: {"Content-Type": "application/json; charset=utf-8"},
         body: jsonEncode(task));
     if (response.statusCode == 200) {
@@ -43,9 +45,9 @@ class ApiData implements TaskData {
     }
   }
 
+  @override
   Future<Task> updateTask(Task task) async {
-    final response = await http.put(
-        Uri.parse('http://127.0.0.1:8000/task/${task.id}'),
+    final response = await http.put(Uri.parse('$apiUrl/task/${task.id}'),
         headers: {"Content-Type": "application/json; charset=utf-8"},
         body: jsonEncode(task));
     if (response.statusCode == 200) {
@@ -60,9 +62,9 @@ class ApiData implements TaskData {
     }
   }
 
+  @override
   Future deleteTask(Task task) async {
-    final response = await http.delete(
-        Uri.parse('http://127.0.0.1:8000/task/${task.id}'),
+    final response = await http.delete(Uri.parse('$apiUrl/task/${task.id}'),
         headers: {"Content-Type": "application/json; charset=utf-8"});
     if (response.statusCode == 200) {
       _tasks.removeWhere((t) => t.id == task.id);

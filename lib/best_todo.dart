@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'config/config.dart';
+import 'db/from_api.dart';
+import 'db/from_mem.dart';
 import 'db/task_data.dart';
 import 'db/from_sqlite.dart';
 import 'model/task.dart';
@@ -101,7 +104,13 @@ class _TaskListState extends State<TaskList> {
   void initState() {
     super.initState();
     title = widget.getTitle();
-    _taskData = SqliteData();
+    if (storeType == 'mem') {
+      _taskData = MemData();
+    } else if (storeType == 'api') {
+      _taskData = ApiData();
+    } else {
+      _taskData = SqliteData();
+    }
   }
 
   @override

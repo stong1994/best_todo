@@ -58,7 +58,7 @@ packages:
     source: hosted
     version: "1.0.5"
   event_bus:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: event_bus
       sha256: "44baa799834f4c803921873e7446a2add0f3efa45e101a054b1f0ab9b95f8edc"
@@ -280,6 +280,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  yaml:
+    dependency: "direct main"
+    description:
+      name: yaml
+      sha256: "23812a9b125b48d4007117254bca50abb6c712352927eece9e155207b1db2370"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.1"
 sdks:
   dart: ">=2.18.0 <3.0.0"
   flutter: ">=3.3.0"

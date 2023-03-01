@@ -3,17 +3,15 @@ import './task_data.dart';
 import 'package:uuid/uuid.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import '../config/config.dart';
 
 // import 'dart:convert';
 
 class SqliteData implements TaskData {
-  final TABLE = "tasks";
   // WidgetsFlutterBinding.ensureInitialized();
   Future<Database> createDatabase() async {
-    final path = join(await getDatabasesPath(), 'best_todo.db');
-    print("path: " + path);
     return await openDatabase(
-      join(await getDatabasesPath(), 'best_todo.db'),
+      join(await getDatabasesPath(), sqliteDBName),
       version: 1,
       onCreate: (db, version) {
         db.execute(
@@ -26,7 +24,7 @@ class SqliteData implements TaskData {
   Future<Task> addTask(Task task) async {
     final db = await createDatabase();
     task.id = Uuid().v4();
-    await db.insert(TABLE, task.toJson());
+    await db.insert(sqliteTableName, task.toJson());
     return task;
   }
 
@@ -34,7 +32,7 @@ class SqliteData implements TaskData {
   Future deleteTask(Task task) async {
     final db = await createDatabase();
     await db.delete(
-      TABLE,
+      sqliteTableName,
       where: 'id = ?',
       whereArgs: [task.id],
     );
@@ -43,7 +41,7 @@ class SqliteData implements TaskData {
   @override
   Future<List<Task>> fetchTasks(bool important, bool urgent) async {
     final db = await createDatabase();
-    final tasks = await db.query(TABLE,
+    final tasks = await db.query(sqliteTableName,
         columns: ['id', 'title', 'is_done', 'is_important', 'is_urgent'],
         where: 'is_important = ? and is_urgent = ?',
         whereArgs: [important, urgent]);
@@ -55,7 +53,7 @@ class SqliteData implements TaskData {
   Future<Task> updateTask(Task task) async {
     final db = await createDatabase();
     await db.update(
-      TABLE,
+      sqliteTableName,
       task.toJson(),
       where: 'id = ?',
       whereArgs: [task.id],
