@@ -142,7 +142,7 @@ class _TaskListState extends State<TaskList> {
     });
   }
 
-  void onTaskadd(String title) {
+  void onTaskAdd(String title) {
     setState(() {
       _taskData.addTask(Task(
           title: title,
@@ -248,7 +248,7 @@ class _TaskListState extends State<TaskList> {
               child: const Text('完成'),
               onPressed: () {
                 String title = _textEditingController.text;
-                onTaskadd(title);
+                onTaskAdd(title);
                 _textEditingController.clear();
                 Navigator.of(context).pop();
               },
