@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'best_todo.dart';
 import 'event/event_bus.dart';
 import 'model/task.dart';
 import 'sub_task.dart';
@@ -67,14 +68,18 @@ class _TaskActionState extends State<TaskAction> {
   }
 
   void _showSubTasks(BuildContext context) {
+    final bgColor =
+        context.findAncestorWidgetOfExactType<TaskList>()?.backgroundColor;
+    final listColor =
+        context.findAncestorWidgetOfExactType<TaskList>()?.taskListColor;
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SubTaskPage(
           parentID: widget.task.id,
           title: widget.task.title,
-          backgroundColor: Colors.white10,
-          taskListColor: Colors.green,
+          backgroundColor: bgColor,
+          taskListColor: listColor,
         ),
       ),
     );

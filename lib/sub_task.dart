@@ -5,12 +5,12 @@ import 'event/event_bus.dart';
 import 'model/sub_task.dart';
 
 class SubTaskPage extends StatefulWidget {
-  late String parentID;
-  final Color backgroundColor;
-  final Color taskListColor;
+  final String parentID;
+  final Color? backgroundColor;
+  final Color? taskListColor;
   final String title;
 
-  SubTaskPage(
+  const SubTaskPage(
       {super.key,
       required this.parentID,
       required this.title,
@@ -27,7 +27,6 @@ class SubTaskState extends State<SubTaskPage> {
 
   final _scrollController = ScrollController();
   final _textEditingController = TextEditingController();
-  FocusNode _focusNode = FocusNode();
 
   @override
   void dispose() {
@@ -41,13 +40,24 @@ class SubTaskState extends State<SubTaskPage> {
     _taskData = getSubTaskData();
   }
 
+  void onClean() {
+    setState(() {
+      getSubTaskData().cleanSubTasks(widget.parentID);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
+          backgroundColor: widget.backgroundColor,
           actions: [
             IconButton(icon: const Icon(Icons.add), onPressed: _addArea),
+            IconButton(
+              icon: const Icon(Icons.cleaning_services_outlined),
+              onPressed: onClean,
+            ),
           ],
         ),
         body: Container(
@@ -123,10 +133,9 @@ class SubTaskState extends State<SubTaskPage> {
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
               )),
-          backgroundColor: widget.backgroundColor.withOpacity(0.9),
+          backgroundColor: widget.backgroundColor?.withOpacity(0.9),
           content: SingleChildScrollView(
               child: TextField(
-            focusNode: _focusNode,
             autofocus: true,
             controller: _textEditingController,
             decoration: const InputDecoration(
