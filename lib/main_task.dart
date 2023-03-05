@@ -24,6 +24,8 @@ class TaskAction extends StatefulWidget {
 }
 
 class _TaskActionState extends State<TaskAction> {
+  late Color? bgColor;
+  late Color? secondColor;
   late TextEditingController _textEditingController;
   bool _isEditing = false;
 
@@ -31,6 +33,10 @@ class _TaskActionState extends State<TaskAction> {
   void initState() {
     super.initState();
     _textEditingController = TextEditingController(text: widget.task.title);
+    bgColor =
+        context.findAncestorWidgetOfExactType<TaskList>()?.backgroundColor;
+    secondColor =
+        context.findAncestorWidgetOfExactType<TaskList>()?.taskListColor;
     eventBus.on<int>().listen((hashCode) {
       onOtherTaskEditing(hashCode);
     });
@@ -67,11 +73,46 @@ class _TaskActionState extends State<TaskAction> {
     widget.onTaskDeleted(widget.task);
   }
 
+  void _showUpdate() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('修改任务',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                )),
+            backgroundColor: bgColor?.withOpacity(0.9),
+            content: SingleChildScrollView(
+              child: TextField(
+                autofocus: true,
+                controller: _textEditingController,
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: const Text('取消'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text('完成'),
+                onPressed: () {
+                  String title = _textEditingController.text;
+                  _updateTask(title);
+                  _textEditingController.clear();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
   void _showSubTasks(BuildContext context) {
-    final bgColor =
-        context.findAncestorWidgetOfExactType<TaskList>()?.backgroundColor;
-    final listColor =
-        context.findAncestorWidgetOfExactType<TaskList>()?.taskListColor;
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -79,7 +120,7 @@ class _TaskActionState extends State<TaskAction> {
           parentID: widget.task.id,
           title: widget.task.title,
           backgroundColor: bgColor,
-          taskListColor: listColor,
+          taskListColor: secondColor,
         ),
       ),
     );
@@ -108,6 +149,7 @@ class _TaskActionState extends State<TaskAction> {
               ),
             ),
           ),
+          IconButton(onPressed: _showUpdate, icon: const Icon(Icons.edit)),
           IconButton(
               onPressed: () {
                 _showSubTasks(context);
