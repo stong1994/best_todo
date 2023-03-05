@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'best_todo.dart';
-import 'event/event_bus.dart';
 import 'model/task.dart';
 import 'sub_task.dart';
 
@@ -30,8 +29,6 @@ class _TaskActionState extends State<TaskAction> {
   late TextEditingController _detailEditingController;
   FocusNode focusNode = FocusNode();
 
-  bool _isEditing = false;
-
   @override
   void initState() {
     super.initState();
@@ -41,9 +38,6 @@ class _TaskActionState extends State<TaskAction> {
         context.findAncestorWidgetOfExactType<TaskList>()?.backgroundColor;
     secondColor =
         context.findAncestorWidgetOfExactType<TaskList>()?.taskListColor;
-    eventBus.on<int>().listen((hashCode) {
-      onOtherTaskEditing(hashCode);
-    });
   }
 
   @override
@@ -54,23 +48,10 @@ class _TaskActionState extends State<TaskAction> {
     super.dispose();
   }
 
-  onOtherTaskEditing(int hashCode) {
-    if (widget.hashCode != hashCode && _isEditing) {
-      _toggleEditing();
-    }
-  }
-
-  void _toggleEditing() {
-    setState(() {
-      _isEditing = !_isEditing;
-    });
-  }
-
   void _updateTask(BuildContext context) {
     String title = _titleEditingController.text;
     _titleEditingController.clear();
     widget.onTaskUpdated(widget.task.copyWith(title: title));
-    _toggleEditing();
     Navigator.of(context).pop();
   }
 
@@ -193,10 +174,6 @@ class _TaskActionState extends State<TaskAction> {
 
   Widget _showTask(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        _toggleEditing();
-        eventBus.fire(widget.hashCode);
-      },
       child: Row(
         children: [
           Checkbox(
