@@ -2,6 +2,7 @@ import 'package:best_todo/model/sub_task.dart';
 
 class Task {
   String title;
+  String detail;
   bool isDone;
   String id;
   bool isImportant;
@@ -10,6 +11,7 @@ class Task {
 
   Task({
     this.title = "",
+    this.detail = "",
     this.isDone = false,
     this.id = "",
     this.isImportant = false,
@@ -23,6 +25,7 @@ class Task {
 
   Task copyWith({
     String? title,
+    String? detail,
     bool? isDone,
     String? id,
     bool? isImportant,
@@ -31,6 +34,7 @@ class Task {
   }) {
     return Task(
       title: title ?? this.title,
+      detail: detail ?? this.detail,
       isDone: isDone ?? this.isDone,
       id: id ?? this.id,
       isImportant: isImportant ?? this.isImportant,
@@ -43,6 +47,7 @@ class Task {
     return Task(
       id: json['id'],
       title: json['title'],
+      detail: json['detail'],
       isDone: json['is_done'],
       isImportant: json['is_important'],
       isUrgent: json['is_urgent'],
@@ -54,6 +59,7 @@ class Task {
     return Task(
         id: json['id'],
         title: json['title'],
+        detail: json['detail'] ?? '',
         isDone: json['is_done'] == 1 ? true : false,
         isImportant: json['is_important'] == 1 ? true : false,
         isUrgent: json['is_urgent'] == 1 ? true : false);
@@ -61,6 +67,7 @@ class Task {
 
   Map<String, dynamic> toJson() => {
         'title': title,
+        'detail': detail,
         'is_done': isDone,
         'is_important': isImportant,
         'is_urgent': isUrgent,
@@ -69,6 +76,7 @@ class Task {
 
   Map<String, dynamic> toSqlite() => {
         'title': title,
+        'detail': detail,
         'is_done': isDone ? 1 : 0,
         'is_important': isImportant ? 1 : 0,
         'is_urgent': isUrgent ? 1 : 0,

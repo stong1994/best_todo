@@ -51,7 +51,6 @@ class SqliteData implements TaskData, SubTaskData {
   Future<List<Task>> fetchTasks(bool important, bool urgent) async {
     final db = await createDatabase();
     final tasks = await db.query(sqliteTableName,
-        columns: ['id', 'title', 'is_done', 'is_important', 'is_urgent'],
         where: 'is_important = ? and is_urgent = ?',
         whereArgs: [important ? 1 : 0, urgent ? 1 : 0]);
     return List.generate(

@@ -1,3 +1,4 @@
+import 'package:best_todo/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 import 'best_todo.dart';
@@ -26,13 +27,15 @@ class TaskAction extends StatefulWidget {
 class _TaskActionState extends State<TaskAction> {
   late Color? bgColor;
   late Color? secondColor;
-  late TextEditingController _textEditingController;
+  late TextEditingController _titleEditingController;
+  late TextEditingController _detailEditingController;
   bool _isEditing = false;
 
   @override
   void initState() {
     super.initState();
-    _textEditingController = TextEditingController(text: widget.task.title);
+    _titleEditingController = TextEditingController(text: widget.task.title);
+    _detailEditingController = TextEditingController(text: widget.task.detail);
     bgColor =
         context.findAncestorWidgetOfExactType<TaskList>()?.backgroundColor;
     secondColor =
@@ -44,7 +47,8 @@ class _TaskActionState extends State<TaskAction> {
 
   @override
   void dispose() {
-    _textEditingController.dispose();
+    _titleEditingController.dispose();
+    _detailEditingController.dispose();
     super.dispose();
   }
 
@@ -63,6 +67,10 @@ class _TaskActionState extends State<TaskAction> {
   void _updateTask(String newTitle) {
     widget.onTaskUpdated(widget.task.copyWith(title: newTitle));
     _toggleEditing();
+  }
+
+  void _updateDetail(String newDetail) {
+    widget.onTaskUpdated(widget.task.copyWith(detail: newDetail));
   }
 
   void _toggleDone(bool isDone) {
@@ -88,7 +96,7 @@ class _TaskActionState extends State<TaskAction> {
             content: SingleChildScrollView(
               child: TextField(
                 autofocus: true,
-                controller: _textEditingController,
+                controller: _titleEditingController,
               ),
             ),
             actions: [
@@ -101,9 +109,49 @@ class _TaskActionState extends State<TaskAction> {
               TextButton(
                 child: const Text('完成'),
                 onPressed: () {
-                  String title = _textEditingController.text;
+                  String title = _titleEditingController.text;
                   _updateTask(title);
-                  _textEditingController.clear();
+                  _titleEditingController.clear();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  void _showDetail() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("详细信息"),
+            backgroundColor: bgColor?.withOpacity(0.9),
+            content: SingleChildScrollView(
+                child: TextField(
+              autofocus: true,
+              controller: _detailEditingController,
+            )),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.copy),
+                onPressed: () {
+                  onCopy(context, widget.task.detail);
+                },
+                tooltip: '复制内容',
+              ),
+              IconButton(
+                icon: const Icon(Icons.cancel),
+                tooltip: "取消",
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.check_circle),
+                tooltip: "确认",
+                onPressed: () {
+                  _updateDetail(_detailEditingController.text);
                   Navigator.of(context).pop();
                 },
               ),
@@ -150,6 +198,7 @@ class _TaskActionState extends State<TaskAction> {
             ),
           ),
           IconButton(onPressed: _showUpdate, icon: const Icon(Icons.edit)),
+          IconButton(onPressed: _showDetail, icon: const Icon(Icons.details)),
           IconButton(
               onPressed: () {
                 _showSubTasks(context);
@@ -166,7 +215,7 @@ class _TaskActionState extends State<TaskAction> {
 
   Widget _editTask() {
     return TextFormField(
-      controller: _textEditingController,
+      controller: _titleEditingController,
       autofocus: true,
       style: TextStyle(fontSize: 18.0, color: Colors.black87),
       decoration: InputDecoration(
@@ -190,7 +239,7 @@ class _TaskActionState extends State<TaskAction> {
       ),
       onFieldSubmitted: (value) {
         _updateTask(value);
-        _textEditingController.clear();
+        _titleEditingController.clear();
       },
     );
   }
