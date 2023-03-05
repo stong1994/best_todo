@@ -198,7 +198,7 @@ class _TaskActionState extends State<TaskAction> {
             ),
           ),
           IconButton(onPressed: _showUpdate, icon: const Icon(Icons.edit)),
-          IconButton(onPressed: _showDetail, icon: const Icon(Icons.details)),
+          IconButton(onPressed: _showDetail, icon: const Icon(Icons.info)),
           IconButton(
               onPressed: () {
                 _showSubTasks(context);
@@ -213,39 +213,8 @@ class _TaskActionState extends State<TaskAction> {
     );
   }
 
-  Widget _editTask() {
-    return TextFormField(
-      controller: _titleEditingController,
-      autofocus: true,
-      style: TextStyle(fontSize: 18.0, color: Colors.black87),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(
-            width: 0.8,
-            color: Colors.grey.shade400,
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(
-            width: 0.8,
-            color: Colors.grey.shade400,
-          ),
-        ),
-      ),
-      onFieldSubmitted: (value) {
-        _updateTask(value);
-        _titleEditingController.clear();
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return _isEditing ? _editTask() : _showTask(context);
+    return _showTask(context);
   }
 }
