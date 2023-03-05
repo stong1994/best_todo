@@ -109,6 +109,9 @@ class SubTaskState extends State<SubTaskPage> {
                     );
                   }
                   List<SubTask> tasks = snapshot.data!;
+                  if (tasks.isEmpty) {
+                    return const Center(child: Text("尚未设置子任务"));
+                  }
                   return ListView.builder(
                       controller: _scrollController,
                       itemCount: tasks.length,
