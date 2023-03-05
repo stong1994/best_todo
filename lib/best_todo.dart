@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'db/task_data.dart';
 import 'main_task.dart';
 import 'model/task.dart';
@@ -103,10 +104,11 @@ class _TaskListState extends State<TaskList> {
 
   final _scrollController = ScrollController();
   final _textEditingController = TextEditingController();
-  FocusNode _focusNode = FocusNode();
+  FocusNode focusNode = FocusNode();
 
   @override
   void dispose() {
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -143,13 +145,16 @@ class _TaskListState extends State<TaskList> {
     });
   }
 
-  void onTaskAdd(String title) {
+  void onTaskAdd(BuildContext context) {
     setState(() {
+      String title = _textEditingController.text;
+      _textEditingController.clear();
       _taskData.addTask(Task(
           title: title,
           isImportant: widget.important,
           isUrgent: widget.urgent));
     });
+    Navigator.of(context).pop();
   }
 
   // 象限header
@@ -211,51 +216,55 @@ class _TaskListState extends State<TaskList> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('添加任务',
-              style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
+        return RawKeyboardListener(
+            focusNode: focusNode,
+            onKey: (event) {
+              if (event.logicalKey == LogicalKeyboardKey.enter) {
+                onTaskAdd(context);
+              }
+            },
+            child: AlertDialog(
+              title: const Text('添加任务',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  )),
+              backgroundColor: widget.backgroundColor.withOpacity(0.9),
+              content: SingleChildScrollView(
+                  child: TextField(
+                focusNode: focusNode,
+                autofocus: true,
+                controller: _textEditingController,
+                decoration: const InputDecoration(
+                  // fillColor: Colors.white,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  hintText: '请描述任务...',
+                  hintStyle: TextStyle(
+                    color: Color.fromARGB(255, 235, 186, 186),
+                    fontSize: 16,
+                  ),
+                  border: UnderlineInputBorder(),
+                ),
               )),
-          backgroundColor: widget.backgroundColor.withOpacity(0.9),
-          content: SingleChildScrollView(
-              child: TextField(
-            focusNode: _focusNode,
-            autofocus: true,
-            controller: _textEditingController,
-            decoration: const InputDecoration(
-              // fillColor: Colors.white,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              hintText: '请描述任务...',
-              hintStyle: TextStyle(
-                color: Color.fromARGB(255, 235, 186, 186),
-                fontSize: 16,
-              ),
-              border: UnderlineInputBorder(),
-            ),
-          )),
-          actions: [
-            TextButton(
-              child: const Text('取消'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('完成'),
-              onPressed: () {
-                String title = _textEditingController.text;
-                onTaskAdd(title);
-                _textEditingController.clear();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
+              actions: [
+                TextButton(
+                  child: const Text('取消'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text('完成'),
+                  onPressed: () {
+                    onTaskAdd(context);
+                  },
+                ),
+              ],
+            ));
       },
     );
   }
