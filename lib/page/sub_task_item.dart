@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 
 import 'package:best_todo/model/sub_task.dart';
+import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 
 class SubTaskItem extends StatefulWidget {
   SubTask task;
+  final bool isFirst;
+  final bool isLast;
   final Function(SubTask) onTaskUpdated;
   final Function(SubTask) onTaskDeleted;
 
-  SubTaskItem(
-      {super.key,
-      required this.task,
-      required this.onTaskDeleted,
-      required this.onTaskUpdated});
+  SubTaskItem({
+    super.key,
+    required this.task,
+    required this.onTaskDeleted,
+    required this.onTaskUpdated,
+    required this.isFirst,
+    required this.isLast,
+  });
 
   @override
   SubTaskItemState createState() => SubTaskItemState();
@@ -58,70 +64,74 @@ class SubTaskItemState extends State<SubTaskItem> {
     widget.onTaskDeleted(widget.task);
   }
 
-  Widget _showTask(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        _toggleEditing();
-      },
-      child: Row(
-        children: [
-          Checkbox(
-            value: widget.task.isDone,
-            onChanged: (value) {
-              _toggleDone(value!);
-            },
-          ),
-          Expanded(
-            child: Text(
-              widget.task.title,
-              style: TextStyle(
-                decoration:
-                    widget.task.isDone ? TextDecoration.lineThrough : null,
+  Widget _buildChild(BuildContext context, ReorderableItemState state) {
+    Widget dragHandle = ReorderableListener(
+      child: Icon(Icons.reorder),
+    );
+
+    Widget content = Container(
+      child: SafeArea(
+          top: false,
+          bottom: false,
+          child: Opacity(
+            // hide content for placeholder
+            opacity: state == ReorderableItemState.placeholder ? 0.0 : 1.0,
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Checkbox(
+                    value: widget.task.isDone,
+                    onChanged: (value) {
+                      _toggleDone(value!);
+                    },
+                  ),
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 14.0, horizontal: 14.0),
+                    child: Text(
+                      widget.task.title,
+                      style: TextStyle(
+                        decoration: widget.task.isDone
+                            ? TextDecoration.lineThrough
+                            : null,
+                      ),
+                    ),
+                  )),
+                  ReorderableListener(
+                    child: Container(
+                      // padding: const EdgeInsets.only(right: 18.0, left: 18.0),
+                      // color: const Color(0x08000000),
+                      child: const Center(
+                        child: Icon(Icons.reorder),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: _deleteTask,
+                  ),
+                ],
               ),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _deleteTask,
-          ),
-        ],
-      ),
+          )),
     );
-  }
 
-  Widget _editTask() {
-    return TextFormField(
-      controller: _textEditingController,
-      autofocus: true,
-      style: TextStyle(fontSize: 18.0, color: Colors.black87),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15.0),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(
-            width: 0.8,
-            color: Colors.grey.shade400,
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(
-            width: 0.8,
-            color: Colors.grey.shade400,
-          ),
-        ),
-      ),
-      onFieldSubmitted: (value) {
-        _updateTask(value);
-        _textEditingController.clear();
-      },
-    );
+    // For android dragging mode, wrap the entire content in DelayedReorderableListener
+    // if (draggingMode == DraggingMode.android) {
+    //   content = DelayedReorderableListener(
+    //     child: content,
+    //   );
+    // }
+
+    return content;
   }
 
   @override
   Widget build(BuildContext context) {
-    return _isEditing ? _editTask() : _showTask(context);
+    return ReorderableItem(
+        key: ValueKey(widget.task.id), //
+        childBuilder: _buildChild);
   }
 }

@@ -1,9 +1,37 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart' hide ReorderableList;
+import 'package:flutter_reorderable_list/flutter_reorderable_list.dart'
+    as reorder;
 
 import 'package:best_todo/db/task_data.dart';
 import 'package:best_todo/model/sub_task.dart';
 import 'sub_task_item.dart';
+
+// class SubTaskList extends StatefulWidget {
+//   @override
+//   SubTaskListState createState() => SubTaskListState();
+// }
+
+// class SubTaskListState extends State<SubTaskList> {
+//   List<SubTaskItem> tasks = [];
+
+//   late final SubTaskData _taskData;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     title = widget.title;
+//     _taskData = getSubTaskData();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // TODO: implement build
+//     throw UnimplementedError();
+//   }
+// }
 
 class SubTaskPage extends StatefulWidget {
   final String parentID;
@@ -22,13 +50,14 @@ class SubTaskPage extends StatefulWidget {
   SubTaskState createState() => SubTaskState();
 }
 
-class SubTaskState extends State<SubTaskPage> {
+class SubTaskState extends State<SubTaskPage> with TickerProviderStateMixin {
   late String title;
   late final SubTaskData _taskData;
   FocusNode focusNode = FocusNode();
 
   final _scrollController = ScrollController();
   final _textEditingController = TextEditingController();
+  final _notifier = ValueNotifier(0);
 
   @override
   void dispose() {
@@ -86,11 +115,25 @@ class SubTaskState extends State<SubTaskPage> {
   }
 
   void onTaskAdd(BuildContext context) {
+    String title = _textEditingController.text;
+    _textEditingController.clear();
+    _taskData
+        .addSubTask(SubTask(title: title, parentID: widget.parentID))
+        .then((value) {
+      setState(() {
+        Navigator.of(context).pop();
+      });
+    });
+  }
+
+  void updateSort(List<SubTask> tasks) {
+    Map<String, int> rst = {};
+    for (var task in tasks) {
+      rst[task.id] = task.sort;
+    }
+
     setState(() {
-      String title = _textEditingController.text;
-      _textEditingController.clear();
-      _taskData.addSubTask(SubTask(title: title, parentID: widget.parentID));
-      Navigator.of(context).pop();
+      _taskData.updateSubTaskSort(rst);
     });
   }
 
@@ -118,15 +161,58 @@ class SubTaskState extends State<SubTaskPage> {
                   if (tasks.isEmpty) {
                     return const Center(child: Text("尚未设置子任务"));
                   }
-                  return ListView.builder(
-                      controller: _scrollController,
-                      itemCount: tasks.length,
-                      itemBuilder: (context, index) {
-                        return SubTaskItem(
-                            task: tasks[index],
-                            onTaskUpdated: onTaskUpdate,
-                            onTaskDeleted: onTaskDelete);
-                      });
+
+                  return ValueListenableBuilder(
+                    valueListenable: _notifier,
+                    builder: (context, value, child) {
+                      return reorder.ReorderableList(
+                        child: CustomScrollView(
+                          slivers: <Widget>[
+                            SliverPadding(
+                                padding: EdgeInsets.only(
+                                    bottom:
+                                        MediaQuery.of(context).padding.bottom),
+                                sliver: SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (BuildContext context, int index) {
+                                      return SubTaskItem(
+                                          key: ValueKey(tasks[index].id),
+                                          task: tasks[index],
+                                          onTaskUpdated: onTaskUpdate,
+                                          onTaskDeleted: onTaskDelete,
+                                          isFirst: index == 0,
+                                          isLast: index == tasks.length - 1);
+                                    },
+                                    childCount: tasks.length,
+                                  ),
+                                )),
+                          ],
+                        ),
+                        onReorder: (draggedItem, newPosition) {
+                          List<SubTask> tasks = snapshot.data!;
+                          int oldIndex = tasks.indexWhere(
+                              (task) => task.getKey() == draggedItem);
+                          int newIndex = tasks.indexWhere(
+                              (task) => task.getKey() == newPosition);
+                          final task1 = tasks[oldIndex];
+                          final task2 = tasks[newIndex];
+                          final sort1 = task1.sort;
+                          task1.sort = task2.sort;
+                          task2.sort = sort1;
+
+                          snapshot.data![oldIndex] = task2;
+                          snapshot.data![newIndex] = task1;
+                          _notifier.value += 1; // 通知刷新
+
+                          return true;
+                        },
+                        onReorderDone: (draggedItem) {
+                          List<SubTask> tasks = snapshot.data!;
+                          updateSort(tasks);
+                        },
+                      );
+                    },
+                  );
                 })));
   }
 

@@ -28,6 +28,7 @@ abstract class SubTaskData {
   Future<List<SubTask>> fetchSubTasks(String parentID);
   Future<SubTask> addSubTask(SubTask task);
   Future<SubTask> updateSubTask(SubTask task);
+  Future<void> updateSubTaskSort(Map<String, int> data);
   Future deleteSubTask(SubTask task);
 }
 

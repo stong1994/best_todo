@@ -19,9 +19,9 @@ class SqliteData implements TaskData, SubTaskData {
       version: 1,
       onCreate: (db, version) {
         db.execute(
-            'CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT, is_done INTEGER, is_important INTEGER, is_urgent INTEGER, create_dt INTEGER, update_dt INTEGER)');
+            'CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT, is_done INTEGER, is_important INTEGER, is_urgent INTEGER, create_dt INTEGER, update_dt INTEGER, sort INTEGER)');
         db.execute(
-            'CREATE TABLE sub_tasks(id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, is_done INTEGER, create_dt INTEGER, update_dt INTEGER)');
+            'CREATE TABLE sub_tasks(id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, is_done INTEGER, create_dt INTEGER, update_dt INTEGER, sort INTEGER)');
       },
     );
   }
@@ -38,8 +38,16 @@ class SqliteData implements TaskData, SubTaskData {
     final db = await createDatabase();
     task.createDt = Timeline.now;
     task.id = Uuid().v4();
+    task.sort = await getTaskMaxSort() + 1;
     await db.insert(sqliteTableName, task.toSqlite());
     return task;
+  }
+
+  Future<int> getTaskMaxSort() async {
+    final db = await createDatabase();
+    final result = await db.rawQuery(
+        'SELECT IFNULL(MAX(sort), 1) as max_sort FROM $sqliteTableName');
+    return result.first['max_sort'] as int;
   }
 
   @override
@@ -50,6 +58,13 @@ class SqliteData implements TaskData, SubTaskData {
       where: 'id = ?',
       whereArgs: [task.id],
     );
+  }
+
+  Future<int> getSubTaskMaxSort(String parentID) async {
+    final db = await createDatabase();
+    final result = await db.rawQuery(
+        'SELECT IFNULL(MAX(sort), 1) as max_sort FROM $sqliteSubTaskTableName WHERE parent_id = "$parentID"');
+    return result.first['max_sort'] as int;
   }
 
   @override
@@ -78,10 +93,28 @@ class SqliteData implements TaskData, SubTaskData {
   }
 
   @override
+  Future<void> updateSubTaskSort(Map<String, int> data) async {
+    final db = await createDatabase();
+    final batch = db.batch();
+    data.forEach((id, sort) {
+      batch.update(
+        sqliteSubTaskTableName,
+        {'sort': sort},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    });
+    batch.commit();
+    return;
+  }
+
+  @override
   Future<SubTask> addSubTask(SubTask task) async {
     final db = await createDatabase();
     task.createDt = Timeline.now;
     task.id = Uuid().v4();
+    int maxID = await getSubTaskMaxSort(task.parentID);
+    task.sort = maxID + 1;
     await db.insert(sqliteSubTaskTableName, task.toSqlite());
     return task;
   }

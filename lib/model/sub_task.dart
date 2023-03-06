@@ -9,6 +9,7 @@ class SubTask {
   bool isDone;
   int createDt;
   int updateDt;
+  int sort;
 
   SubTask({
     this.id = "",
@@ -17,11 +18,14 @@ class SubTask {
     this.parentID = "",
     this.createDt = 0,
     this.updateDt = 0,
+    this.sort = 0,
   });
 
   void toggleDone() {
     isDone = !isDone;
   }
+
+  Key getKey() => ValueKey(id) ;
 
   SubTask copyWith({
     String? title,
@@ -30,6 +34,7 @@ class SubTask {
     String? parentID,
     int? createDt,
     int? updateDt,
+    int? sort,
   }) {
     return SubTask(
       title: title ?? this.title,
@@ -38,6 +43,7 @@ class SubTask {
       parentID: parentID ?? this.parentID,
       createDt: createDt ?? this.createDt,
       updateDt: updateDt ?? this.updateDt,
+      sort: sort ?? this.sort,
     );
   }
 
@@ -48,7 +54,8 @@ class SubTask {
       isDone: json['is_done'],
       parentID: json['parent_id'],
       createDt: json['create_dt'],
-      updateDt: json['update_dt'] ?? 0,
+      updateDt: json['update_dt'],
+      sort: json['sort'],
     );
   }
 
@@ -60,6 +67,7 @@ class SubTask {
       parentID: json['parent_id'],
       createDt: json['create_dt'] ?? 0,
       updateDt: json['update_dt'] ?? 0,
+      sort: json['sort'] ?? 0,
     );
   }
 
@@ -70,6 +78,7 @@ class SubTask {
         'parent_id': parentID,
         'create_dt': createDt,
         'update_dt': updateDt,
+        'sort': sort,
       };
 
   Map<String, dynamic> toSqlite() => {
@@ -79,9 +88,13 @@ class SubTask {
         'parent_id': parentID,
         'create_dt': createDt,
         'update_dt': updateDt,
+        'sort': sort,
       };
 
   int compareTo(SubTask other) {
+    if (sort != 0 && other.sort != 0) {
+      return sort - other.sort;
+    }
     final int selfTime = updateDt != 0 ? updateDt : createDt;
     final int otherTime = other.updateDt != 0 ? other.updateDt : other.createDt;
     return selfTime - otherTime;

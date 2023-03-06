@@ -20,6 +20,8 @@
     },
     "peacock.color": "#215732",
     "cSpell.words": [
-        "autofocus"
+        "autofocus",
+        "IFNULL",
+        "Reorderable"
     ]
 }

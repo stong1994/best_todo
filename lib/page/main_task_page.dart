@@ -235,12 +235,10 @@ class _TaskListState extends State<TaskList> {
                   )),
               backgroundColor: widget.backgroundColor.withOpacity(0.9),
               content: SingleChildScrollView(
-                child: TextField(
-                focusNode: focusNode,
+                  child: TextField(
                 autofocus: true,
                 controller: _textEditingController,
                 decoration: const InputDecoration(
-                  // fillColor: Colors.white,
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 16.0,
                     vertical: 8.0,
