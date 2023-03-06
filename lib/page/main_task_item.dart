@@ -1,17 +1,18 @@
+
+import 'package:best_todo/model/task.dart';
 import 'package:best_todo/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'best_todo.dart';
-import 'model/task.dart';
-import 'sub_task.dart';
+import 'main_task_page.dart';
+import 'sub_task_page.dart';
 
-class TaskAction extends StatefulWidget {
+class MainTaskItem extends StatefulWidget {
   final Task task;
   final Function(Task) onTaskUpdated;
   final Function(Task) onTaskDeleted;
 
-  const TaskAction({
+  const MainTaskItem({
     Key? key,
     required this.task,
     required this.onTaskUpdated,
@@ -19,10 +20,10 @@ class TaskAction extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _TaskActionState createState() => _TaskActionState();
+  _MainTaskItemState createState() => _MainTaskItemState();
 }
 
-class _TaskActionState extends State<TaskAction> {
+class _MainTaskItemState extends State<MainTaskItem> {
   late Color? bgColor;
   late Color? secondColor;
   late TextEditingController _titleEditingController;

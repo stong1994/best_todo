@@ -1,15 +1,18 @@
+import 'package:best_todo/db/task_data.dart';
+import 'package:best_todo/model/task.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'db/task_data.dart';
-import 'main_task.dart';
-import 'model/task.dart';
 
-class BestTodo extends StatefulWidget {
+import 'main_task_item.dart';
+
+class MainTaskPage extends StatefulWidget {
+  const MainTaskPage({super.key});
+
   @override
-  _BestTodoState createState() => _BestTodoState();
+  _MainTaskPageState createState() => _MainTaskPageState();
 }
 
-class _BestTodoState extends State<BestTodo> {
+class _MainTaskPageState extends State<MainTaskPage> {
   void onClean() {
     setState(() {
       getTaskData().clean();
@@ -203,7 +206,7 @@ class _TaskListState extends State<TaskList> {
                       controller: _scrollController,
                       itemCount: tasks.length,
                       itemBuilder: (context, index) {
-                        return TaskAction(
+                        return MainTaskItem(
                             task: tasks[index],
                             onTaskUpdated: onTaskUpdate,
                             onTaskDeleted: onTaskDelete);
