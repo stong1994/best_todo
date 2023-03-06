@@ -5,6 +5,9 @@ class Task {
   String detail;
   bool isDone;
   String id;
+  int createDt;
+  int updateDt;
+
   bool isImportant;
   bool isUrgent;
   List<SubTask> subTasks;
@@ -14,6 +17,8 @@ class Task {
     this.detail = "",
     this.isDone = false,
     this.id = "",
+    this.createDt = 0,
+    this.updateDt = 0,
     this.isImportant = false,
     this.isUrgent = false,
     this.subTasks = const [],
@@ -28,6 +33,8 @@ class Task {
     String? detail,
     bool? isDone,
     String? id,
+    int? createDt,
+    int? updateDt,
     bool? isImportant,
     bool? isUrgent,
     List<SubTask>? subTasks,
@@ -37,6 +44,8 @@ class Task {
       detail: detail ?? this.detail,
       isDone: isDone ?? this.isDone,
       id: id ?? this.id,
+      createDt: createDt ?? this.createDt,
+      updateDt: updateDt ?? this.updateDt,
       isImportant: isImportant ?? this.isImportant,
       isUrgent: isUrgent ?? this.isUrgent,
       subTasks: subTasks ?? this.subTasks,
@@ -49,6 +58,8 @@ class Task {
       title: json['title'],
       detail: json['detail'],
       isDone: json['is_done'],
+      createDt: json['create_dt'],
+      updateDt: json['update_dt'] ?? 0,
       isImportant: json['is_important'],
       isUrgent: json['is_urgent'],
       subTasks: json['sub_tasks'],
@@ -57,12 +68,15 @@ class Task {
 
   factory Task.fromSqlite(Map<String, dynamic> json) {
     return Task(
-        id: json['id'],
-        title: json['title'],
-        detail: json['detail'] ?? '',
-        isDone: json['is_done'] == 1 ? true : false,
-        isImportant: json['is_important'] == 1 ? true : false,
-        isUrgent: json['is_urgent'] == 1 ? true : false);
+      id: json['id'],
+      title: json['title'],
+      detail: json['detail'] ?? '',
+      isDone: json['is_done'] == 1 ? true : false,
+      isImportant: json['is_important'] == 1 ? true : false,
+      isUrgent: json['is_urgent'] == 1 ? true : false,
+      createDt: json['create_dt'] ?? 0,
+      updateDt: json['update_dt'] ?? 0,
+    );
   }
 
   Map<String, dynamic> toJson() => {
@@ -72,6 +86,8 @@ class Task {
         'is_important': isImportant,
         'is_urgent': isUrgent,
         'id': id,
+        'create_dt': createDt,
+        'update_dt': updateDt,
       };
 
   Map<String, dynamic> toSqlite() => {
@@ -81,5 +97,13 @@ class Task {
         'is_important': isImportant ? 1 : 0,
         'is_urgent': isUrgent ? 1 : 0,
         'id': id,
+        'create_dt': createDt,
+        'update_dt': updateDt,
       };
+
+  int compareTo(Task other) {
+    final int selfTime = updateDt != 0 ? updateDt : createDt;
+    final int otherTime = other.updateDt != 0 ? other.updateDt : other.createDt;
+    return selfTime - otherTime;
+  }
 }

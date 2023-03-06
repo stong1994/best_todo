@@ -235,7 +235,7 @@ class _TaskListState extends State<TaskList> {
                   )),
               backgroundColor: widget.backgroundColor.withOpacity(0.9),
               content: SingleChildScrollView(
-                  child: TextField(
+                child: TextField(
                 focusNode: focusNode,
                 autofocus: true,
                 controller: _textEditingController,

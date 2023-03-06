@@ -1,3 +1,7 @@
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
+
 import '../model/sub_task.dart';
 import '../model/task.dart';
 import './task_data.dart';
@@ -15,9 +19,9 @@ class SqliteData implements TaskData, SubTaskData {
       version: 1,
       onCreate: (db, version) {
         db.execute(
-            'CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT, is_done INTEGER, is_important INTEGER, is_urgent INTEGER)');
+            'CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT, is_done INTEGER, is_important INTEGER, is_urgent INTEGER, create_dt INTEGER, update_dt INTEGER)');
         db.execute(
-            'CREATE TABLE sub_tasks(id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, is_done INTEGER)');
+            'CREATE TABLE sub_tasks(id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, is_done INTEGER, create_dt INTEGER, update_dt INTEGER)');
       },
     );
   }
@@ -32,6 +36,7 @@ class SqliteData implements TaskData, SubTaskData {
   @override
   Future<Task> addTask(Task task) async {
     final db = await createDatabase();
+    task.createDt = Timeline.now;
     task.id = Uuid().v4();
     await db.insert(sqliteTableName, task.toSqlite());
     return task;
@@ -53,13 +58,16 @@ class SqliteData implements TaskData, SubTaskData {
     final tasks = await db.query(sqliteTableName,
         where: 'is_important = ? and is_urgent = ?',
         whereArgs: [important ? 1 : 0, urgent ? 1 : 0]);
-    return List.generate(
-        tasks.length, (index) => Task.fromSqlite(tasks[index]));
+    List<Task> rst =
+        List.generate(tasks.length, (index) => Task.fromSqlite(tasks[index]));
+    rst.sort((a, b) => a.compareTo(b));
+    return rst;
   }
 
   @override
   Future<Task> updateTask(Task task) async {
     final db = await createDatabase();
+    task.updateDt = Timeline.now;
     await db.update(
       sqliteTableName,
       task.toSqlite(),
@@ -72,6 +80,7 @@ class SqliteData implements TaskData, SubTaskData {
   @override
   Future<SubTask> addSubTask(SubTask task) async {
     final db = await createDatabase();
+    task.createDt = Timeline.now;
     task.id = Uuid().v4();
     await db.insert(sqliteSubTaskTableName, task.toSqlite());
     return task;
@@ -91,16 +100,18 @@ class SqliteData implements TaskData, SubTaskData {
   Future<List<SubTask>> fetchSubTasks(String parentID) async {
     final db = await createDatabase();
     final tasks = await db.query(sqliteSubTaskTableName,
-        columns: ['id', 'title', 'is_done', 'parent_id'],
-        where: 'parent_id = ?',
-        whereArgs: [parentID]);
-    return List.generate(
+        where: 'parent_id = ?', whereArgs: [parentID]);
+
+    List<SubTask> rst = List.generate(
         tasks.length, (index) => SubTask.fromSqlite(tasks[index]));
+    rst.sort((a, b) => a.compareTo(b));
+    return rst;
   }
 
   @override
   Future<SubTask> updateSubTask(SubTask task) async {
     final db = await createDatabase();
+    task.updateDt = Timeline.now;
     await db.update(
       sqliteSubTaskTableName,
       task.toSqlite(),
