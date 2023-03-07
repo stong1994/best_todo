@@ -83,4 +83,22 @@ class ApiData implements TaskData {
     // TODO: implement updateTaskSort
     throw UnimplementedError();
   }
+
+  @override
+  Future<List<Task>> fetchRootTasks(bool important, bool urgent) {
+    // TODO: implement fetchRootTasks
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<Task>> getSubTasks(String parentID) {
+    // TODO: implement getSubTasks
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<Task> getTask(String id) {
+    // TODO: implement getTask
+    throw UnimplementedError();
+  }
 }

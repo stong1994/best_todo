@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 
-import 'main_task_page.dart';
 import 'sub_task_page.dart';
+import 'task_common_page.dart';
 
 class MainTaskItem extends StatefulWidget {
   Task task;
@@ -127,11 +127,9 @@ class _MainTaskItemState extends State<MainTaskItem> {
   }
 
   void _showDetail() {
-    print("show detail");
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          print("detail ctl, ${_detailEditingController.hashCode}");
           return RawKeyboardListener(
               focusNode: focusNode,
               onKey: (event) {
@@ -181,68 +179,67 @@ class _MainTaskItemState extends State<MainTaskItem> {
         builder: (context) => SubTaskPage(
           parentID: widget.task.id,
           title: widget.task.title,
-          backgroundColor: bgColor,
-          taskListColor: secondColor,
+          backgroundColor: bgColor!,
+          taskListColor: secondColor!,
         ),
       ),
     );
   }
 
   Widget _buildChild(BuildContext context, ReorderableItemState state) {
-    Widget content = Container(
-      child: SafeArea(
-          top: false,
-          bottom: false,
-          child: Opacity(
-            // hide content for placeholder
-            opacity: state == ReorderableItemState.placeholder ? 0.0 : 1.0,
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Checkbox(
-                    value: widget.task.isDone,
-                    onChanged: (value) {
-                      _toggleDone(value!);
+    Widget content = SafeArea(
+        top: false,
+        bottom: false,
+        child: Opacity(
+          // hide content for placeholder
+          opacity: state == ReorderableItemState.placeholder ? 0.0 : 1.0,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Checkbox(
+                  value: widget.task.isDone,
+                  onChanged: (value) {
+                    _toggleDone(value!);
+                  },
+                ),
+                Expanded(
+                    child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 14.0),
+                  child: Text(
+                    widget.task.title,
+                    style: TextStyle(
+                      decoration: widget.task.isDone
+                          ? TextDecoration.lineThrough
+                          : null,
+                    ),
+                  ),
+                )),
+                IconButton(
+                    onPressed: _showUpdate, icon: const Icon(Icons.edit)),
+                IconButton(
+                    onPressed: _showDetail, icon: const Icon(Icons.info)),
+                IconButton(
+                    onPressed: () {
+                      print("_showSubTasks");
+                      _showSubTasks(context);
                     },
-                  ),
-                  Expanded(
-                      child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 14.0),
-                    child: Text(
-                      widget.task.title,
-                      style: TextStyle(
-                        decoration: widget.task.isDone
-                            ? TextDecoration.lineThrough
-                            : null,
-                      ),
-                    ),
-                  )),
-                  IconButton(
-                      onPressed: _showUpdate, icon: const Icon(Icons.edit)),
-                  IconButton(
-                      onPressed: _showDetail, icon: const Icon(Icons.info)),
-                  IconButton(
-                      onPressed: () {
-                        _showSubTasks(context);
-                      },
-                      icon: const Icon(Icons.expand)),
-                  ReorderableListener(
-                    child: Container(
-                      child: const Center(
-                        child: Icon(Icons.reorder),
-                      ),
+                    icon: const Icon(Icons.expand)),
+                ReorderableListener(
+                  child: Container(
+                    child: const Center(
+                      child: Icon(Icons.reorder),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: _deleteTask,
-                  ),
-                ],
-              ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: _deleteTask,
+                ),
+              ],
             ),
-          )),
-    );
+          ),
+        ));
 
     // For android dragging mode, wrap the entire content in DelayedReorderableListener
     // if (draggingMode == DraggingMode.android) {
@@ -252,41 +249,6 @@ class _MainTaskItemState extends State<MainTaskItem> {
     // }
 
     return content;
-  }
-
-  Widget _showTask(BuildContext context) {
-    return GestureDetector(
-      child: Row(
-        children: [
-          Checkbox(
-            value: widget.task.isDone,
-            onChanged: (value) {
-              _toggleDone(value!);
-            },
-          ),
-          Expanded(
-            child: Text(
-              widget.task.title,
-              style: TextStyle(
-                decoration:
-                    widget.task.isDone ? TextDecoration.lineThrough : null,
-              ),
-            ),
-          ),
-          IconButton(onPressed: _showUpdate, icon: const Icon(Icons.edit)),
-          IconButton(onPressed: _showDetail, icon: const Icon(Icons.info)),
-          IconButton(
-              onPressed: () {
-                _showSubTasks(context);
-              },
-              icon: const Icon(Icons.expand)),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _deleteTask,
-          ),
-        ],
-      ),
-    );
   }
 
   @override

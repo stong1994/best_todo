@@ -24,11 +24,6 @@ class MemData implements TaskData {
   }
 
   @override
-  Future<List<Task>> fetchTasks(bool important, bool urgent) {
-    return Future.value(_tasks);
-  }
-
-  @override
   Future<Task> updateTask(Task task) {
     final idx = _tasks.indexWhere((t) => t.id == task.id);
     if (idx >= 0) {
@@ -40,6 +35,24 @@ class MemData implements TaskData {
   @override
   Future<void> updateTaskSort(Map<String, int> data) {
     // TODO: implement updateTaskSort
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<List<Task>> fetchRootTasks(bool important, bool urgent) {
+    // TODO: implement fetchRootTasks
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<List<Task>> getSubTasks(String parentID) {
+    // TODO: implement getSubTasks
+    throw UnimplementedError();
+  }
+  
+  @override
+  Future<Task> getTask(String id) {
+    // TODO: implement getTask
     throw UnimplementedError();
   }
 }

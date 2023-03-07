@@ -1,4 +1,3 @@
-import 'package:best_todo/model/sub_task.dart';
 import 'package:flutter/material.dart';
 
 class Task {
@@ -6,19 +5,21 @@ class Task {
   String detail;
   bool isDone;
   String id;
+  String parentID;
   int createDt;
   int updateDt;
   int sort;
 
   bool isImportant;
   bool isUrgent;
-  List<SubTask> subTasks;
+  List<Task> subTasks;
 
   Task({
     this.title = "",
     this.detail = "",
     this.isDone = false,
     this.id = "",
+    this.parentID = "",
     this.createDt = 0,
     this.updateDt = 0,
     this.isImportant = false,
@@ -40,11 +41,12 @@ class Task {
     String? detail,
     bool? isDone,
     String? id,
+    String? parentID,
     int? createDt,
     int? updateDt,
     bool? isImportant,
     bool? isUrgent,
-    List<SubTask>? subTasks,
+    List<Task>? subTasks,
     int? sort,
   }) {
     return Task(
@@ -52,6 +54,7 @@ class Task {
       detail: detail ?? this.detail,
       isDone: isDone ?? this.isDone,
       id: id ?? this.id,
+      parentID: parentID ?? this.parentID,
       createDt: createDt ?? this.createDt,
       updateDt: updateDt ?? this.updateDt,
       isImportant: isImportant ?? this.isImportant,
@@ -64,6 +67,7 @@ class Task {
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
       id: json['id'],
+      parentID: json['parent_id'],
       title: json['title'],
       detail: json['detail'],
       isDone: json['is_done'],
@@ -79,6 +83,7 @@ class Task {
   factory Task.fromSqlite(Map<String, dynamic> json) {
     return Task(
       id: json['id'],
+      parentID: json['parent_id'],
       title: json['title'],
       detail: json['detail'] ?? '',
       isDone: json['is_done'] == 1 ? true : false,
@@ -97,6 +102,7 @@ class Task {
         'is_important': isImportant,
         'is_urgent': isUrgent,
         'id': id,
+        'parent_id': parentID,
         'create_dt': createDt,
         'update_dt': updateDt,
         'sort': sort,
@@ -109,6 +115,7 @@ class Task {
         'is_important': isImportant ? 1 : 0,
         'is_urgent': isUrgent ? 1 : 0,
         'id': id,
+        'parent_id': parentID,
         'create_dt': createDt,
         'update_dt': updateDt,
         'sort': sort,
