@@ -141,9 +141,7 @@ class _TaskListState extends State<TaskList> {
   }
 
   void onTaskDelete(Task task) {
-    _taskData.deleteTask(task).then((_) {
-      _notifier.value += 1;
-    });
+    setState(() {});
   }
 
   void onTaskAdd(BuildContext context) {
@@ -155,8 +153,9 @@ class _TaskListState extends State<TaskList> {
             isImportant: widget.important,
             isUrgent: widget.urgent))
         .then((_) {
-      _notifier.value += 1;
-      Navigator.of(context).pop();
+      setState(() {
+        Navigator.of(context).pop();
+      });
     });
   }
 
@@ -165,7 +164,9 @@ class _TaskListState extends State<TaskList> {
     for (var task in tasks) {
       rst[task.id] = task.sort;
     }
-    _taskData.updateTaskSort(rst).then((value) => _notifier.value += 1);
+    _taskData.updateTaskSort(rst).then((value) {
+      setState(() {});
+    });
   }
 
   // 象限header

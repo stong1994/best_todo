@@ -79,7 +79,9 @@ class _MainTaskItemState extends State<MainTaskItem> {
   }
 
   void _deleteTask() {
-    widget.onTaskDeleted(widget.task);
+    getTaskData().deleteTask(widget.task).then((task) {
+      widget.onTaskDeleted(widget.task);
+    });
   }
 
   void _showUpdate() {
