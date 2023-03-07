@@ -93,6 +93,22 @@ class SqliteData implements TaskData, SubTaskData {
   }
 
   @override
+  Future<void> updateTaskSort(Map<String, int> data) async {
+    final db = await createDatabase();
+    final batch = db.batch();
+    data.forEach((id, sort) {
+      batch.update(
+        sqliteTableName,
+        {'sort': sort},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    });
+    batch.commit();
+    return;
+  }
+
+  @override
   Future<void> updateSubTaskSort(Map<String, int> data) async {
     final db = await createDatabase();
     final batch = db.batch();

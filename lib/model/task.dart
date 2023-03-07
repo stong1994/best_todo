@@ -1,4 +1,5 @@
 import 'package:best_todo/model/sub_task.dart';
+import 'package:flutter/material.dart';
 
 class Task {
   String title;
@@ -25,6 +26,10 @@ class Task {
     this.subTasks = const [],
     this.sort = 0,
   });
+
+  Key getKey() {
+    return ValueKey(id);
+  }
 
   void toggleDone() {
     isDone = !isDone;

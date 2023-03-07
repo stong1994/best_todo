@@ -2,6 +2,8 @@ import 'package:best_todo/db/task_data.dart';
 import 'package:best_todo/model/task.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_reorderable_list/flutter_reorderable_list.dart'
+    as reorder;
 
 import 'main_task_item.dart';
 
@@ -158,6 +160,14 @@ class _TaskListState extends State<TaskList> {
     });
   }
 
+  void updateSort(List<Task> tasks) {
+    Map<String, int> rst = {};
+    for (var task in tasks) {
+      rst[task.id] = task.sort;
+    }
+    _taskData.updateTaskSort(rst).then((value) => _notifier.value += 1);
+  }
+
   // 象限header
   Widget header() {
     return Row(
@@ -186,32 +196,73 @@ class _TaskListState extends State<TaskList> {
             decoration: BoxDecoration(
               color: widget.taskListColor,
             ),
-            child: ValueListenableBuilder(
-              valueListenable: _notifier,
-              builder: (BuildContext context, int _, Widget? __) {
-                return FutureBuilder<List<Task>>(
-                    future:
-                        _taskData.fetchTasks(widget.important, widget.urgent),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState != ConnectionState.done) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Text("Error: ${snapshot.error}}"),
-                        );
-                      }
-                      List<Task> tasks = snapshot.data!;
-                      return ListView.builder(
-                          controller: _scrollController,
-                          itemCount: tasks.length,
-                          itemBuilder: (context, index) {
-                            return MainTaskItem(
-                                task: tasks[index],
-                                onTaskDeleted: onTaskDelete);
-                          });
+            child: FutureBuilder<List<Task>>(
+              future: _taskData.fetchTasks(widget.important, widget.urgent),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text("Error: ${snapshot.error}}"),
+                  );
+                }
+                return ValueListenableBuilder(
+                    valueListenable: _notifier,
+                    builder: (BuildContext context, int _, Widget? __) {
+                      return reorder.ReorderableList(
+                        child: CustomScrollView(
+                          slivers: <Widget>[
+                            SliverPadding(
+                                padding: EdgeInsets.only(
+                                    bottom:
+                                        MediaQuery.of(context).padding.bottom),
+                                sliver: SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (BuildContext context, int index) {
+                                      return MainTaskItem(
+                                          key: snapshot.data![index].getKey(),
+                                          task: snapshot.data![index],
+                                          onTaskDeleted: onTaskDelete);
+                                    },
+                                    childCount: snapshot.data!.length,
+                                  ),
+                                )),
+                          ],
+                        ),
+                        onReorder: (draggedItem, newPosition) {
+                          List<Task> tasks = snapshot.data!;
+                          int oldIndex = tasks.indexWhere(
+                              (task) => task.getKey() == draggedItem);
+                          int newIndex = tasks.indexWhere(
+                              (task) => task.getKey() == newPosition);
+                          final task1 = tasks[oldIndex];
+                          final task2 = tasks[newIndex];
+                          final sort1 = task1.sort;
+                          task1.sort = task2.sort;
+                          task2.sort = sort1;
+
+                          snapshot.data![oldIndex] = task2;
+                          snapshot.data![newIndex] = task1;
+                          _notifier.value += 1; // 通知刷新
+
+                          return true;
+                        },
+                        onReorderDone: (draggedItem) {
+                          List<Task> tasks = snapshot.data!;
+                          updateSort(tasks);
+                        },
+                      );
+                      // return ListView.builder(
+                      //     controller: _scrollController,
+                      //     itemCount: tasks.length,
+                      //     itemBuilder: (context, index) {
+                      //       return MainTaskItem(
+                      //           task: tasks[index],
+                      //           onTaskDeleted: onTaskDelete);
+                      //     });
                     });
               },
             )));

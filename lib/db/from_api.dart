@@ -77,4 +77,10 @@ class ApiData implements TaskData {
       throw Exception('Failed to delete task');
     }
   }
+
+  @override
+  Future<void> updateTaskSort(Map<String, int> data) {
+    // TODO: implement updateTaskSort
+    throw UnimplementedError();
+  }
 }

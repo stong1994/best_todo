@@ -10,6 +10,7 @@ abstract class TaskData {
   Future<List<Task>> fetchTasks(bool important, bool urgent);
   Future<Task> addTask(Task task);
   Future<Task> updateTask(Task task);
+  Future<void> updateTaskSort(Map<String, int> data);
   Future deleteTask(Task task);
 }
 

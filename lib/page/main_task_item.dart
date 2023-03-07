@@ -3,6 +3,7 @@ import 'package:best_todo/model/task.dart';
 import 'package:best_todo/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 
 import 'main_task_page.dart';
 import 'sub_task_page.dart';
@@ -185,6 +186,72 @@ class _MainTaskItemState extends State<MainTaskItem> {
     );
   }
 
+  Widget _buildChild(BuildContext context, ReorderableItemState state) {
+    Widget content = Container(
+      child: SafeArea(
+          top: false,
+          bottom: false,
+          child: Opacity(
+            // hide content for placeholder
+            opacity: state == ReorderableItemState.placeholder ? 0.0 : 1.0,
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Checkbox(
+                    value: widget.task.isDone,
+                    onChanged: (value) {
+                      _toggleDone(value!);
+                    },
+                  ),
+                  Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14.0),
+                    child: Text(
+                      widget.task.title,
+                      style: TextStyle(
+                        decoration: widget.task.isDone
+                            ? TextDecoration.lineThrough
+                            : null,
+                      ),
+                    ),
+                  )),
+                  IconButton(
+                      onPressed: _showUpdate, icon: const Icon(Icons.edit)),
+                  IconButton(
+                      onPressed: _showDetail, icon: const Icon(Icons.info)),
+                  IconButton(
+                      onPressed: () {
+                        _showSubTasks(context);
+                      },
+                      icon: const Icon(Icons.expand)),
+                  ReorderableListener(
+                    child: Container(
+                      child: const Center(
+                        child: Icon(Icons.reorder),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: _deleteTask,
+                  ),
+                ],
+              ),
+            ),
+          )),
+    );
+
+    // For android dragging mode, wrap the entire content in DelayedReorderableListener
+    // if (draggingMode == DraggingMode.android) {
+    //   content = DelayedReorderableListener(
+    //     child: content,
+    //   );
+    // }
+
+    return content;
+  }
+
   Widget _showTask(BuildContext context) {
     return GestureDetector(
       child: Row(
@@ -222,6 +289,8 @@ class _MainTaskItemState extends State<MainTaskItem> {
 
   @override
   Widget build(BuildContext context) {
-    return _showTask(context);
+    return ReorderableItem(
+        key: ValueKey(widget.task.id), //
+        childBuilder: _buildChild);
   }
 }

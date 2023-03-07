@@ -36,4 +36,10 @@ class MemData implements TaskData {
     }
     return Future.value(task);
   }
+
+  @override
+  Future<void> updateTaskSort(Map<String, int> data) {
+    // TODO: implement updateTaskSort
+    throw UnimplementedError();
+  }
 }

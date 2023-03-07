@@ -5,8 +5,6 @@ import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 
 class SubTaskItem extends StatefulWidget {
   SubTask task;
-  final bool isFirst;
-  final bool isLast;
   final Function(SubTask) onTaskUpdated;
   final Function(SubTask) onTaskDeleted;
 
@@ -15,8 +13,6 @@ class SubTaskItem extends StatefulWidget {
     required this.task,
     required this.onTaskDeleted,
     required this.onTaskUpdated,
-    required this.isFirst,
-    required this.isLast,
   });
 
   @override
@@ -65,10 +61,6 @@ class SubTaskItemState extends State<SubTaskItem> {
   }
 
   Widget _buildChild(BuildContext context, ReorderableItemState state) {
-    Widget dragHandle = ReorderableListener(
-      child: Icon(Icons.reorder),
-    );
-
     Widget content = Container(
       child: SafeArea(
           top: false,

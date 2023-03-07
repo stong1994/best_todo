@@ -108,9 +108,7 @@ class SubTaskState extends State<SubTaskPage> with TickerProviderStateMixin {
       rst[task.id] = task.sort;
     }
 
-    setState(() {
-      _taskData.updateSubTaskSort(rst);
-    });
+    _taskData.updateSubTaskSort(rst).then((value) => _notifier.value += 1);
   }
 
   // 任务列表主体
@@ -155,9 +153,7 @@ class SubTaskState extends State<SubTaskPage> with TickerProviderStateMixin {
                                           key: ValueKey(tasks[index].id),
                                           task: tasks[index],
                                           onTaskUpdated: onTaskUpdate,
-                                          onTaskDeleted: onTaskDelete,
-                                          isFirst: index == 0,
-                                          isLast: index == tasks.length - 1);
+                                          onTaskDeleted: onTaskDelete);
                                     },
                                     childCount: tasks.length,
                                   ),
@@ -165,6 +161,8 @@ class SubTaskState extends State<SubTaskPage> with TickerProviderStateMixin {
                           ],
                         ),
                         onReorder: (draggedItem, newPosition) {
+                          print("record1 ${draggedItem.toString()}");
+                          print("record2 ${newPosition.toString()}");
                           List<SubTask> tasks = snapshot.data!;
                           int oldIndex = tasks.indexWhere(
                               (task) => task.getKey() == draggedItem);
