@@ -9,30 +9,6 @@ import 'package:best_todo/db/task_data.dart';
 import 'package:best_todo/model/sub_task.dart';
 import 'sub_task_item.dart';
 
-// class SubTaskList extends StatefulWidget {
-//   @override
-//   SubTaskListState createState() => SubTaskListState();
-// }
-
-// class SubTaskListState extends State<SubTaskList> {
-//   List<SubTaskItem> tasks = [];
-
-//   late final SubTaskData _taskData;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     title = widget.title;
-//     _taskData = getSubTaskData();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     // TODO: implement build
-//     throw UnimplementedError();
-//   }
-// }
-
 class SubTaskPage extends StatefulWidget {
   final String parentID;
   final Color? backgroundColor;
@@ -73,8 +49,8 @@ class SubTaskState extends State<SubTaskPage> with TickerProviderStateMixin {
   }
 
   void onClean() {
-    setState(() {
-      getSubTaskData().cleanSubTasks(widget.parentID);
+    getSubTaskData().cleanSubTasks(widget.parentID).then((value) {
+      setState(() {});
     });
   }
 

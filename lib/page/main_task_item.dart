@@ -1,4 +1,4 @@
-
+import 'package:best_todo/db/task_data.dart';
 import 'package:best_todo/model/task.dart';
 import 'package:best_todo/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -8,14 +8,12 @@ import 'main_task_page.dart';
 import 'sub_task_page.dart';
 
 class MainTaskItem extends StatefulWidget {
-  final Task task;
-  final Function(Task) onTaskUpdated;
+  Task task;
   final Function(Task) onTaskDeleted;
 
-  const MainTaskItem({
+  MainTaskItem({
     Key? key,
     required this.task,
-    required this.onTaskUpdated,
     required this.onTaskDeleted,
   }) : super(key: key);
 
@@ -50,21 +48,33 @@ class _MainTaskItemState extends State<MainTaskItem> {
   }
 
   void _updateTask(BuildContext context) {
-    String title = _titleEditingController.text;
-    _titleEditingController.clear();
-    widget.onTaskUpdated(widget.task.copyWith(title: title));
-    Navigator.of(context).pop();
+    getTaskData()
+        .updateTask(widget.task.copyWith(title: _titleEditingController.text))
+        .then((task) {
+      Navigator.of(context).pop();
+      setState(() {
+        widget.task = task;
+      });
+    });
   }
 
   void _updateDetail(BuildContext context) {
-    String detail = _detailEditingController.text;
-    _detailEditingController.clear();
-    widget.onTaskUpdated(widget.task.copyWith(detail: detail));
-    Navigator.of(context).pop();
+    getTaskData()
+        .updateTask(widget.task.copyWith(detail: _detailEditingController.text))
+        .then((task) {
+      Navigator.of(context).pop();
+      setState(() {
+        widget.task = task;
+      });
+    });
   }
 
   void _toggleDone(bool isDone) {
-    widget.onTaskUpdated(widget.task.copyWith(isDone: isDone));
+    getTaskData().updateTask(widget.task.copyWith(isDone: isDone)).then((task) {
+      setState(() {
+        widget.task = task;
+      });
+    });
   }
 
   void _deleteTask() {
@@ -114,9 +124,11 @@ class _MainTaskItemState extends State<MainTaskItem> {
   }
 
   void _showDetail() {
+    print("show detail");
     showDialog(
         context: context,
         builder: (BuildContext context) {
+          print("detail ctl, ${_detailEditingController.hashCode}");
           return RawKeyboardListener(
               focusNode: focusNode,
               onKey: (event) {

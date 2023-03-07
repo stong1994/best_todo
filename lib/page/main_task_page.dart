@@ -14,8 +14,8 @@ class MainTaskPage extends StatefulWidget {
 
 class _MainTaskPageState extends State<MainTaskPage> {
   void onClean() {
-    setState(() {
-      getTaskData().clean();
+    getTaskData().clean().then((value) {
+      setState(() {});
     });
   }
 
@@ -108,10 +108,12 @@ class _TaskListState extends State<TaskList> {
   final _scrollController = ScrollController();
   final _textEditingController = TextEditingController();
   FocusNode focusNode = FocusNode();
+  final _notifier = ValueNotifier(0);
 
   @override
   void dispose() {
     focusNode.dispose();
+    _notifier.dispose();
     super.dispose();
   }
 
@@ -137,27 +139,23 @@ class _TaskListState extends State<TaskList> {
   }
 
   void onTaskDelete(Task task) {
-    setState(() {
-      _taskData.deleteTask(task);
-    });
-  }
-
-  void onTaskUpdate(Task task) {
-    setState(() {
-      _taskData.updateTask(task);
+    _taskData.deleteTask(task).then((_) {
+      _notifier.value += 1;
     });
   }
 
   void onTaskAdd(BuildContext context) {
-    setState(() {
-      String title = _textEditingController.text;
-      _textEditingController.clear();
-      _taskData.addTask(Task(
-          title: title,
-          isImportant: widget.important,
-          isUrgent: widget.urgent));
+    String title = _textEditingController.text;
+    _textEditingController.clear();
+    _taskData
+        .addTask(Task(
+            title: title,
+            isImportant: widget.important,
+            isUrgent: widget.urgent))
+        .then((_) {
+      _notifier.value += 1;
+      Navigator.of(context).pop();
     });
-    Navigator.of(context).pop();
   }
 
   // 象限header
@@ -188,30 +186,35 @@ class _TaskListState extends State<TaskList> {
             decoration: BoxDecoration(
               color: widget.taskListColor,
             ),
-            child: FutureBuilder<List<Task>>(
-                future: _taskData.fetchTasks(widget.important, widget.urgent),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState != ConnectionState.done) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text("Error: ${snapshot.error}}"),
-                    );
-                  }
-                  List<Task> tasks = snapshot.data!;
-                  return ListView.builder(
-                      controller: _scrollController,
-                      itemCount: tasks.length,
-                      itemBuilder: (context, index) {
-                        return MainTaskItem(
-                            task: tasks[index],
-                            onTaskUpdated: onTaskUpdate,
-                            onTaskDeleted: onTaskDelete);
-                      });
-                })));
+            child: ValueListenableBuilder(
+              valueListenable: _notifier,
+              builder: (BuildContext context, int _, Widget? __) {
+                return FutureBuilder<List<Task>>(
+                    future:
+                        _taskData.fetchTasks(widget.important, widget.urgent),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text("Error: ${snapshot.error}}"),
+                        );
+                      }
+                      List<Task> tasks = snapshot.data!;
+                      return ListView.builder(
+                          controller: _scrollController,
+                          itemCount: tasks.length,
+                          itemBuilder: (context, index) {
+                            return MainTaskItem(
+                                task: tasks[index],
+                                onTaskDeleted: onTaskDelete);
+                          });
+                    });
+              },
+            )));
   }
 
   // 添加任务弹窗
