@@ -158,13 +158,16 @@ class _TaskListState extends State<TaskList> {
                     child: ListView(
                       children: List.generate(
                           snapshot.data!.length,
-                          (index) => Draggable(
-                              feedback: Material(
-                                child: Container(height: 100, width: 100),
-                              ),
+                          (index) => Draggable<Task>(
                               onDragCompleted: () {
                                 setState(() {});
                               },
+                              // childWhenDragging: // todo not work
+                              feedback: Material(
+                                  child: MainTaskItemShadow(
+                                key: snapshot.data![index].getKey(),
+                                task: snapshot.data![index],
+                              )),
                               data: snapshot.data![index],
                               child: MainTaskItem(
                                   key: snapshot.data![index].getKey(),

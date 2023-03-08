@@ -258,3 +258,87 @@ class _MainTaskItemState extends State<MainTaskItem> {
         childBuilder: _buildChild);
   }
 }
+
+class MainTaskItemShadow extends StatelessWidget {
+  Task task;
+
+  MainTaskItemShadow({
+    Key? key,
+    required this.task,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 300,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Checkbox(
+            value: task.isDone,
+            onChanged: (value) {},
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14.0),
+              child: Text(
+                task.title,
+                style: TextStyle(
+                  decoration: task.isDone ? TextDecoration.lineThrough : null,
+                ),
+              ),
+            ),
+          ),
+          Icon(Icons.edit),
+          Icon(Icons.info),
+          Icon(Icons.expand),
+          Icon(Icons.reorder),
+          Icon(Icons.delete),
+        ],
+      ),
+    );
+  }
+}
+
+class MainTaskItemShadow33333 extends StatelessWidget {
+  Task task;
+
+  MainTaskItemShadow33333({
+    Key? key,
+    required this.task,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    print('bbbbbbbb');
+    return Container(
+      width: 300,
+      foregroundDecoration: BoxDecoration(color: Colors.white30),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Checkbox(
+            value: task.isDone,
+            onChanged: (value) {},
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14.0),
+              child: Text(
+                task.title,
+                style: TextStyle(
+                  decoration: task.isDone ? TextDecoration.lineThrough : null,
+                ),
+              ),
+            ),
+          ),
+          Icon(Icons.edit),
+          Icon(Icons.info),
+          Icon(Icons.expand),
+          Icon(Icons.reorder),
+          Icon(Icons.delete),
+        ],
+      ),
+    );
+  }
+}
