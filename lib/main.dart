@@ -8,6 +8,7 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // debugPrint(RendererBinding.instance.renderView.toStringDeep());
     return MaterialApp(
       title: 'Best Todo',
       debugShowCheckedModeBanner: false,

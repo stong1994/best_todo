@@ -83,6 +83,8 @@ class SubTaskState extends State<SubTaskPage> with TickerProviderStateMixin {
                 title: '父任务：${task.title}',
                 backgroundColor: widget.backgroundColor,
                 taskListColor: widget.taskListColor,
+                important: task.isImportant,
+                urgent: task.isUrgent,
                 addTask: widget.addTask(task.isImportant, task.isUrgent),
                 getTasks: widget.getTasks(),
               )

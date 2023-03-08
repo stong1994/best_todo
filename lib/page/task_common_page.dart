@@ -14,6 +14,8 @@ class TaskList extends StatefulWidget {
   final Color backgroundColor;
   final Color taskListColor;
   final String title;
+  final bool important;
+  final bool urgent;
   final GetTaskFunc getTasks;
   final AddTaskFunc addTask;
 
@@ -21,6 +23,8 @@ class TaskList extends StatefulWidget {
     required this.backgroundColor,
     required this.taskListColor,
     required this.title,
+    required this.important,
+    required this.urgent,
     required this.getTasks,
     required this.addTask,
   });
@@ -53,14 +57,21 @@ class _TaskListState extends State<TaskList> {
   Widget build(BuildContext context) {
     return Expanded(
         child: Container(
-            margin: EdgeInsets.all(16),
-            color: widget.backgroundColor,
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  header(),
-                  mainArea(),
-                ])));
+      margin: EdgeInsets.all(16),
+      color: widget.backgroundColor,
+      child: SingleChildScrollView(
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              header(),
+              Container(
+                color: widget.taskListColor,
+                height: 310, //将容器高度设置为父容器高度的一半
+                child: mainWithDrag(),
+              )
+            ]),
+      ),
+    ));
   }
 
   void onTaskDelete(Task task) {
@@ -87,6 +98,14 @@ class _TaskListState extends State<TaskList> {
     });
   }
 
+  void updateTaskAttr(Task task) {
+    task.isImportant = widget.important;
+    task.isUrgent = widget.urgent;
+    _taskData.updateTask(task).then((value) {
+      setState(() {});
+    });
+  }
+
   // 象限header
   Widget header() {
     return Row(
@@ -108,75 +127,139 @@ class _TaskListState extends State<TaskList> {
         ]);
   }
 
+  Widget mainWithDrag() {
+    return DragTarget(
+      builder: (BuildContext context, List<Task?> candidateData,
+          List<dynamic> rejectedData) {
+        return Column(
+          children: [Expanded(child: mainArea())],
+        );
+      },
+      onAccept: (Task task) {
+        updateTaskAttr(task);
+      },
+    );
+  }
+
   // 任务列表主体
   Widget mainArea() {
-    return Expanded(
-        child: Container(
-            decoration: BoxDecoration(
-              color: widget.taskListColor,
-            ),
-            child: FutureBuilder<List<Task>>(
-              future: widget.getTasks(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState != ConnectionState.done) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text("Error: ${snapshot.error}}"),
-                  );
-                }
-                return ValueListenableBuilder(
-                    valueListenable: _notifier,
-                    builder: (BuildContext context, int _, Widget? __) {
-                      return reorder.ReorderableList(
-                        child: CustomScrollView(
-                          slivers: <Widget>[
-                            SliverPadding(
-                                padding: EdgeInsets.only(
-                                    bottom:
-                                        MediaQuery.of(context).padding.bottom),
-                                sliver: SliverList(
-                                  delegate: SliverChildBuilderDelegate(
-                                    (BuildContext context, int index) {
-                                      return MainTaskItem(
-                                          key: snapshot.data![index].getKey(),
-                                          task: snapshot.data![index],
-                                          onTaskDeleted: onTaskDelete);
-                                    },
-                                    childCount: snapshot.data!.length,
-                                  ),
-                                )),
-                          ],
-                        ),
-                        onReorder: (draggedItem, newPosition) {
-                          List<Task> tasks = snapshot.data!;
-                          int oldIndex = tasks.indexWhere(
-                              (task) => task.getKey() == draggedItem);
-                          int newIndex = tasks.indexWhere(
-                              (task) => task.getKey() == newPosition);
-                          final task1 = tasks[oldIndex];
-                          final task2 = tasks[newIndex];
-                          final sort1 = task1.sort;
-                          task1.sort = task2.sort;
-                          task2.sort = sort1;
+    return Container(
+        decoration: BoxDecoration(
+          color: widget.taskListColor,
+        ),
+        child: FutureBuilder<List<Task>>(
+          future: widget.getTasks(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (snapshot.hasError) {
+              return Center(
+                child: Text("Error: ${snapshot.error}}"),
+              );
+            }
+            return ValueListenableBuilder(
+                valueListenable: _notifier,
+                builder: (BuildContext context, int _, Widget? __) {
+                  return reorder.ReorderableList(
+                    child: Column(
+                      children: List.generate(
+                          snapshot.data!.length,
+                          (index) => Draggable(
+                              feedback: Material(
+                                child: Container(height: 100, width: 100),
+                              ),
+                              onDragCompleted: () {
+                                setState(() {});
+                              },
+                              data: snapshot.data![index],
+                              child: MainTaskItem(
+                                  key: snapshot.data![index].getKey(),
+                                  task: snapshot.data![index],
+                                  onTaskDeleted: onTaskDelete))),
+                    ),
+                    onReorder: (draggedItem, newPosition) {
+                      List<Task> tasks = snapshot.data!;
+                      int oldIndex = tasks
+                          .indexWhere((task) => task.getKey() == draggedItem);
+                      int newIndex = tasks
+                          .indexWhere((task) => task.getKey() == newPosition);
+                      final task1 = tasks[oldIndex];
+                      final task2 = tasks[newIndex];
+                      final sort1 = task1.sort;
+                      task1.sort = task2.sort;
+                      task2.sort = sort1;
 
-                          snapshot.data![oldIndex] = task2;
-                          snapshot.data![newIndex] = task1;
-                          _notifier.value += 1; // 通知刷新
+                      snapshot.data![oldIndex] = task2;
+                      snapshot.data![newIndex] = task1;
+                      _notifier.value += 1; // 通知刷新
 
-                          return true;
-                        },
-                        onReorderDone: (draggedItem) {
-                          List<Task> tasks = snapshot.data!;
-                          updateSort(tasks);
-                        },
-                      );
-                    });
-              },
-            )));
+                      return true;
+                    },
+                    onReorderDone: (draggedItem) {
+                      List<Task> tasks = snapshot.data!;
+                      updateSort(tasks);
+                    },
+                  );
+                });
+            //   return reorder.ReorderableList(
+            //     child: CustomScrollView(
+            //       slivers: <Widget>[
+            //         SliverPadding(
+            //             padding: EdgeInsets.only(
+            //                 bottom:
+            //                     MediaQuery.of(context).padding.bottom),
+            //             sliver: SliverList(
+            //               delegate: SliverChildBuilderDelegate(
+            //                 (BuildContext context, int index) {
+            //                   return Draggable(
+            //                       feedback: Material(
+            //                         child: Container(
+            //                             height: 100, width: 100),
+            //                       ),
+            //                       onDragCompleted: () {
+            //                         setState(() {});
+            //                       },
+            //                       data: snapshot.data![index],
+            //                       child: MainTaskItem(
+            //                           key: snapshot.data![index]
+            //                               .getKey(),
+            //                           task: snapshot.data![index],
+            //                           onTaskDeleted: onTaskDelete));
+            //                 },
+            //                 childCount: snapshot.data!.length,
+            //               ),
+            //             )),
+            //       ],
+            //     ),
+            //     onReorder: (draggedItem, newPosition) {
+            //       List<Task> tasks = snapshot.data!;
+            //       int oldIndex = tasks.indexWhere(
+            //           (task) => task.getKey() == draggedItem);
+            //       int newIndex = tasks.indexWhere(
+            //           (task) => task.getKey() == newPosition);
+            //       final task1 = tasks[oldIndex];
+            //       final task2 = tasks[newIndex];
+            //       final sort1 = task1.sort;
+            //       task1.sort = task2.sort;
+            //       task2.sort = sort1;
+
+            //       snapshot.data![oldIndex] = task2;
+            //       snapshot.data![newIndex] = task1;
+            //       _notifier.value += 1; // 通知刷新
+
+            //       return true;
+            //     },
+            //     onReorderDone: (draggedItem) {
+            //       List<Task> tasks = snapshot.data!;
+            //       updateSort(tasks);
+            //     },
+            //   );
+            // });
+          },
+        ));
   }
 
   // 添加任务弹窗
