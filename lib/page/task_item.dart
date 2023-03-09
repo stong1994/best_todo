@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 
-import 'sub_task_page.dart';
-import 'task_common_page.dart';
+import 'task_page.dart';
+import 'task_block.dart';
 
 class MainTaskItem extends StatefulWidget {
   Task task;
@@ -35,9 +35,9 @@ class _MainTaskItemState extends State<MainTaskItem> {
     _titleEditingController = TextEditingController(text: widget.task.title);
     _detailEditingController = TextEditingController(text: widget.task.detail);
     bgColor =
-        context.findAncestorWidgetOfExactType<TaskList>()?.backgroundColor;
+        context.findAncestorWidgetOfExactType<TaskBlock>()?.backgroundColor;
     secondColor =
-        context.findAncestorWidgetOfExactType<TaskList>()?.taskListColor;
+        context.findAncestorWidgetOfExactType<TaskBlock>()?.taskListColor;
   }
 
   @override
@@ -176,11 +176,8 @@ class _MainTaskItemState extends State<MainTaskItem> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SubTaskPage(
-          parentID: widget.task.id,
-          title: widget.task.title,
-          backgroundColor: bgColor!,
-          taskListColor: secondColor!,
+        builder: (context) => MainTaskPage(
+          parent: widget.task,
         ),
       ),
     );
@@ -221,7 +218,6 @@ class _MainTaskItemState extends State<MainTaskItem> {
                     onPressed: _showDetail, icon: const Icon(Icons.info)),
                 IconButton(
                     onPressed: () {
-                      print("_showSubTasks");
                       _showSubTasks(context);
                     },
                     icon: const Icon(Icons.expand)),
@@ -240,13 +236,6 @@ class _MainTaskItemState extends State<MainTaskItem> {
             ),
           ),
         ));
-
-    // For android dragging mode, wrap the entire content in DelayedReorderableListener
-    // if (draggingMode == DraggingMode.android) {
-    //   content = DelayedReorderableListener(
-    //     child: content,
-    //   );
-    // }
 
     return content;
   }
@@ -271,49 +260,6 @@ class MainTaskItemShadow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 300,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Checkbox(
-            value: task.isDone,
-            onChanged: (value) {},
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14.0),
-              child: Text(
-                task.title,
-                style: TextStyle(
-                  decoration: task.isDone ? TextDecoration.lineThrough : null,
-                ),
-              ),
-            ),
-          ),
-          Icon(Icons.edit),
-          Icon(Icons.info),
-          Icon(Icons.expand),
-          Icon(Icons.reorder),
-          Icon(Icons.delete),
-        ],
-      ),
-    );
-  }
-}
-
-class MainTaskItemShadow33333 extends StatelessWidget {
-  Task task;
-
-  MainTaskItemShadow33333({
-    Key? key,
-    required this.task,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    print('bbbbbbbb');
-    return Container(
-      width: 300,
-      foregroundDecoration: BoxDecoration(color: Colors.white30),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[

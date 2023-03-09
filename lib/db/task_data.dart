@@ -6,10 +6,13 @@ import 'from_sqlite.dart';
 
 const String rootParentID = "";
 
+Task rootParent = Task(id: rootParentID);
+
 abstract class TaskData {
   Future<void> clean();
   Future<List<Task>> fetchRootTasks(bool important, bool urgent);
-  Future<List<Task>> getSubTasks(String parentID);
+  Future<List<Task>> getSubTasks(
+      String? parentID, bool? important, bool? urgent);
   Future<Task> addTask(Task task);
   Future<Task> getTask(String id);
   Future<Task> updateTask(Task task);

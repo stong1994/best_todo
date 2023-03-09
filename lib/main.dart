@@ -1,4 +1,5 @@
-import 'package:best_todo/page/main_task_page.dart';
+import 'package:best_todo/db/task_data.dart';
+import 'package:best_todo/page/task_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MainTaskPage(),
+      home: MainTaskPage(parent: rootParent),
     );
   }
 }

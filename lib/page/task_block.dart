@@ -10,7 +10,7 @@ import 'task_item.dart';
 typedef GetTaskFunc = Future<List<Task>> Function();
 typedef AddTaskFunc = Future<Task> Function(String title);
 
-class TaskList extends StatefulWidget {
+class TaskBlock extends StatefulWidget {
   final Color backgroundColor;
   final Color taskListColor;
   final String title;
@@ -19,7 +19,7 @@ class TaskList extends StatefulWidget {
   final GetTaskFunc getTasks;
   final AddTaskFunc addTask;
 
-  TaskList({
+  TaskBlock({
     required this.backgroundColor,
     required this.taskListColor,
     required this.title,
@@ -30,10 +30,10 @@ class TaskList extends StatefulWidget {
   });
 
   @override
-  _TaskListState createState() => _TaskListState();
+  _TaskBlockState createState() => _TaskBlockState();
 }
 
-class _TaskListState extends State<TaskList> {
+class _TaskBlockState extends State<TaskBlock> {
   late final TaskData _taskData;
 
   final _textEditingController = TextEditingController();

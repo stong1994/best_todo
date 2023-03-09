@@ -40,6 +40,9 @@ class SqliteData implements TaskData {
 
   @override
   Future<Task> getTask(String id) async {
+    if (id == rootParentID) {
+      return rootParent;
+    }
     final db = await createDatabase();
     final tasks =
         await db.query(sqliteTableName, where: 'id = ?', whereArgs: [id]);
@@ -89,10 +92,26 @@ class SqliteData implements TaskData {
   }
 
   @override
-  Future<List<Task>> getSubTasks(String parentID) async {
+  Future<List<Task>> getSubTasks(
+      String? parentID, bool? important, bool? urgent) async {
     final db = await createDatabase();
-    final tasks = await db
-        .query(sqliteTableName, where: 'parent_id = ?', whereArgs: [parentID]);
+    List<String> where = [];
+    List<dynamic> args = [];
+    if (parentID != Null) {
+      where.add('parent_id = ?');
+      args.add(parentID!);
+    }
+    if (important != Null) {
+      where.add('is_important = ?');
+      args.add(important!);
+    }
+    if (urgent != Null) {
+      where.add('is_urgent = ?');
+      args.add(urgent!);
+    }
+    final tasks = await db.query(sqliteTableName,
+        where: where.isNotEmpty ? where.join(' and ') : null,
+        whereArgs: args.isNotEmpty ? args : null);
 
     List<Task> rst =
         List.generate(tasks.length, (index) => Task.fromSqlite(tasks[index]));
