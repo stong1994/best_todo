@@ -176,7 +176,7 @@ class _MainTaskItemState extends State<MainTaskItem> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MainTaskPage(
+        builder: (context) => TaskPage(
           parent: widget.task,
         ),
       ),

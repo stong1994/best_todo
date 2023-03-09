@@ -3,16 +3,16 @@ import 'package:best_todo/model/task.dart';
 import 'task_block.dart';
 import 'package:flutter/material.dart';
 
-class MainTaskPage extends StatefulWidget {
+class TaskPage extends StatefulWidget {
   final Task parent;
 
-  MainTaskPage({super.key, required this.parent});
+  TaskPage({super.key, required this.parent});
 
   @override
-  _MainTaskPageState createState() => _MainTaskPageState();
+  _TaskPageState createState() => _TaskPageState();
 }
 
-class _MainTaskPageState extends State<MainTaskPage> {
+class _TaskPageState extends State<TaskPage> {
   void onClean() {
     getTaskData().clean().then((value) {
       setState(() {});
