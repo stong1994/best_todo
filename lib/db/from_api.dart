@@ -67,8 +67,8 @@ class ApiData implements TaskData {
   }
 
   @override
-  Future<void> clean() async {
-    final response = await http.delete(Uri.parse('$apiUrl/tasks'),
+  Future<void> clean(String parentID) async {
+    final response = await http.delete(Uri.parse('$apiUrl/tasks/$parentID'),
         headers: {"Content-Type": "application/json; charset=utf-8"});
     if (response.statusCode == 200) {
       _tasks = [];

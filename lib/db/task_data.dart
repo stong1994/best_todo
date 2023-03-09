@@ -1,7 +1,6 @@
 import '../config/config.dart';
 import '../model/task.dart';
 import 'from_api.dart';
-import 'from_mem.dart';
 import 'from_sqlite.dart';
 
 const String rootParentID = "";
@@ -9,7 +8,7 @@ const String rootParentID = "";
 Task rootParent = Task(id: rootParentID);
 
 abstract class TaskData {
-  Future<void> clean();
+  Future<void> clean(String parentID);
   Future<List<Task>> fetchRootTasks(bool important, bool urgent);
   Future<List<Task>> getSubTasks(
       String? parentID, bool? important, bool? urgent);
@@ -21,9 +20,7 @@ abstract class TaskData {
 }
 
 TaskData getTaskData() {
-  if (storeType == 'mem') {
-    return MemData();
-  } else if (storeType == 'api') {
+  if (storeType == 'api') {
     return ApiData();
   } else {
     return SqliteData();

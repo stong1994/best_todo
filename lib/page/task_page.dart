@@ -14,7 +14,7 @@ class TaskPage extends StatefulWidget {
 
 class _TaskPageState extends State<TaskPage> {
   void onClean() {
-    getTaskData().clean().then((value) {
+    getTaskData().clean(widget.parent.id).then((value) {
       setState(() {});
     });
   }

@@ -22,9 +22,13 @@ class SqliteData implements TaskData {
   }
 
   @override
-  Future<void> clean() async {
+  Future<void> clean(String parentID) async {
     final db = await createDatabase();
-    await db.delete(sqliteTableName);
+    await db.delete(
+      sqliteTableName,
+      where: 'parent_id = ?',
+      whereArgs: [parentID],
+    );
     return;
   }
 
