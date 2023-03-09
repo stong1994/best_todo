@@ -106,7 +106,7 @@ class _TaskBlockState extends State<TaskBlock> {
   void updateTaskAttr(Task task) {
     task.isImportant = widget.important;
     task.isUrgent = widget.urgent;
-    _taskData.updateTask(task).then((value) {
+    _taskData.updateTaskBlock(task).then((value) {
       setState(() {});
     });
   }

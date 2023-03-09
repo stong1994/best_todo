@@ -15,6 +15,7 @@ abstract class TaskData {
   Future<Task> addTask(Task task);
   Future<Task> getTask(String id);
   Future<Task> updateTask(Task task);
+  Future<Task> updateTaskBlock(Task task);
   Future<void> updateTaskSort(Map<String, int> data);
   Future deleteTask(Task task);
 }

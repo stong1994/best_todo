@@ -102,4 +102,10 @@ class ApiData implements TaskData {
     // TODO: implement getSubTasks
     throw UnimplementedError();
   }
+
+  @override
+  Future<Task> updateTaskBlock(Task task) {
+    // TODO: implement updateTaskBlock
+    throw UnimplementedError();
+  }
 }

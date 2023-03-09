@@ -37,7 +37,7 @@ class SqliteData implements TaskData {
     final db = await createDatabase();
     task.createDt = Timeline.now;
     task.id = Uuid().v4();
-    task.sort = await getTaskMaxSort() + 1;
+    task.sort = await getTaskMaxSort(task.parentID) + 1;
     await db.insert(sqliteTableName, task.toSqlite());
     return task;
   }
@@ -53,10 +53,10 @@ class SqliteData implements TaskData {
     return Task.fromSqlite(tasks.first);
   }
 
-  Future<int> getTaskMaxSort() async {
+  Future<int> getTaskMaxSort(String parentID) async {
     final db = await createDatabase();
     final result = await db.rawQuery(
-        'SELECT IFNULL(MAX(sort), 1) as max_sort FROM $sqliteTableName');
+        'SELECT IFNULL(MAX(sort), 1) as max_sort FROM $sqliteTableName WHERE parent_id = "$parentID"');
     return result.first['max_sort'] as int;
   }
 
@@ -86,6 +86,21 @@ class SqliteData implements TaskData {
   Future<Task> updateTask(Task task) async {
     final db = await createDatabase();
     task.updateDt = Timeline.now;
+    await db.update(
+      sqliteTableName,
+      task.toSqlite(),
+      where: 'id = ?',
+      whereArgs: [task.id],
+    );
+    return task;
+  }
+
+  @override
+  Future<Task> updateTaskBlock(Task task) async {
+    final maxSort = await getTaskMaxSort(task.parentID);
+    final db = await createDatabase();
+    task.updateDt = Timeline.now;
+    task.sort = maxSort + 1;
     await db.update(
       sqliteTableName,
       task.toSqlite(),
