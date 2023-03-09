@@ -175,22 +175,7 @@ class _TaskBlockState extends State<TaskBlock> {
                                   onTaskDeleted: onTaskDelete))),
                     ),
                     onReorder: (draggedItem, newPosition) {
-                      List<Task> tasks = snapshot.data!;
-                      int oldIndex = tasks
-                          .indexWhere((task) => task.getKey() == draggedItem);
-                      int newIndex = tasks
-                          .indexWhere((task) => task.getKey() == newPosition);
-                      final task1 = tasks[oldIndex];
-                      final task2 = tasks[newIndex];
-                      final sort1 = task1.sort;
-                      task1.sort = task2.sort;
-                      task2.sort = sort1;
-
-                      snapshot.data![oldIndex] = task2;
-                      snapshot.data![newIndex] = task1;
-                      _notifier.value += 1; // 通知刷新
-
-                      return true;
+                      return _onRecordSort(snapshot, draggedItem, newPosition);
                     },
                     onReorderDone: (draggedItem) {
                       List<Task> tasks = snapshot.data!;
@@ -200,6 +185,24 @@ class _TaskBlockState extends State<TaskBlock> {
                 },
               );
             }));
+  }
+
+  bool _onRecordSort(
+      AsyncSnapshot<List<Task>> snapshot, Key draggedItem, Key newPosition) {
+    List<Task> tasks = snapshot.data!;
+    int oldIndex = tasks.indexWhere((task) => task.getKey() == draggedItem);
+    int newIndex = tasks.indexWhere((task) => task.getKey() == newPosition);
+    final task1 = tasks[oldIndex];
+    final task2 = tasks[newIndex];
+    final sort1 = task1.sort;
+    task1.sort = task2.sort;
+    task2.sort = sort1;
+
+    snapshot.data![oldIndex] = task2;
+    snapshot.data![newIndex] = task1;
+    _notifier.value += 1; // 通知刷新
+
+    return true;
   }
 
   // 添加任务弹窗
