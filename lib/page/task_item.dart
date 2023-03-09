@@ -48,6 +48,13 @@ class _MainTaskItemState extends State<MainTaskItem> {
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return ReorderableItem(
+        key: ValueKey(widget.task.id), //
+        childBuilder: _buildChild);
+  }
+
   void _updateTask(BuildContext context) {
     getTaskData()
         .updateTask(widget.task.copyWith(title: _titleEditingController.text))
@@ -238,13 +245,6 @@ class _MainTaskItemState extends State<MainTaskItem> {
         ));
 
     return content;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ReorderableItem(
-        key: ValueKey(widget.task.id), //
-        childBuilder: _buildChild);
   }
 }
 

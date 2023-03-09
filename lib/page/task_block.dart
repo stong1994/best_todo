@@ -57,7 +57,7 @@ class _TaskBlockState extends State<TaskBlock> {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        margin: EdgeInsets.all(16),
+        margin: EdgeInsets.symmetric(vertical: 4, horizontal: 4),
         color: widget.backgroundColor,
         child: DragTarget(
           builder: (BuildContext context, List<Task?> candidateData,
@@ -135,6 +135,7 @@ class _TaskBlockState extends State<TaskBlock> {
   // 任务列表主体
   Widget mainArea() {
     return Container(
+        padding: EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
           color: widget.taskListColor,
         ),
@@ -156,6 +157,7 @@ class _TaskBlockState extends State<TaskBlock> {
                 builder: (BuildContext context, int _, Widget? __) {
                   return reorder.ReorderableList(
                     child: ListView(
+                      // itemExtent: 50,
                       children: List.generate(
                           snapshot.data!.length,
                           (index) => Draggable<Task>(
