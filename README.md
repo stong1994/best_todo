@@ -1,16 +1,39 @@
-# best_todo
+# Best Todo
 
-A new Flutter project.
+Best Todo是一个任务管理工具，它能够帮助用户更好地管理自己的任务，并提高工作的效率。
 
-## Getting Started
+Best Todo是基于重要性和紧急性两个维度来排列任务的矩阵，将所有任务分为4个象限：重要且紧急、重要但不紧急、紧急但不重要、不重要不紧急，使用户更加清晰地了解自己的任务优先级，从而更好地规划和执行任务并提高工作效率。
 
-This project is a starting point for a Flutter application.
+<img src="https://raw.githubusercontent.com/stong1994/images/master/picgo/202303091605035.png" style="zoom:50%;" />
 
-A few resources to get you started if this is your first Flutter project:
+## 为什么使用Best Todo
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+美国第34任总统德**怀特•艾森豪威尔**提出**处理事情应分清主次，确定优先级别，以此来决定事务处理的先后顺序**。
+为了应付繁杂的事务，并且可以将这些事务迅速处理，不贻误时机，他发明了著名的**四象限法则**——后来也被称为“十”字时间计划。
+**即将自己要处理的事务分成四个象限：重要紧急的、重要不紧急的、不重要紧急的、不重要不紧急的**。
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. **重要紧急的，最优先处理；**
+2. **重要不紧急的，可以暂缓完成，但要引起足够的重视；**
+3. **不重要紧急的，要尽快处理，可以安排他人来做；**
+4. **不重要不紧急的，可以推迟做，委派他人来做，甚至不做。**
+
+如果没有详细的计划以及及时的反思，我们每天的处理的任务都是处于第一象限和第三象限中，重要但不紧急的任务则会一直拖延。
+但是往往是**第二象限的任务对我们成长影响最大**：
+
+- 最近一次的学习计划荒废了多久？
+- 上一次阅读书籍是什么时候？
+- 有多久没有去锻炼了？
+
+**Best Todo能够帮助我们理清任务，让生活和工作更有条理，让重要的事情不再被忽略。**
+
+## 支持的功能
+1. 支持任务的新增、修改和删除
+2. 支持自定义排序
+3. 支持象限之间的任务拖动
+4. 支持记录子任务，以及子子任务（无深度限制）
+
+## 计划内的功能
+1. 导入与导出
+2. 其他端（目前仅支持mac端，windows和Linux理论上支持，android、ios、web未适配）
+3. 多端同步
+4. 账号登录（saas版）
