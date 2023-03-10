@@ -1,7 +1,11 @@
+import 'package:best_todo/db/navigator_data.dart';
 import 'package:best_todo/db/task_data.dart';
 import 'package:best_todo/model/task.dart';
+import 'package:best_todo/model/navigator.dart' as ng;
 import 'task_block.dart';
 import 'package:flutter/material.dart';
+
+import 'task_four_quadrant.dart';
 
 class TaskPage extends StatefulWidget {
   final Task parent;
@@ -12,107 +16,92 @@ class TaskPage extends StatefulWidget {
   _TaskPageState createState() => _TaskPageState();
 }
 
-class _TaskPageState extends State<TaskPage> {
+class _TaskPageState extends State<TaskPage>
+    with SingleTickerProviderStateMixin {
   void onClean() {
     getTaskData().clean(widget.parent.id).then((value) {
       setState(() {});
     });
   }
 
-  GetTaskFunc getTasks(bool important, bool urgent) {
-    return () async {
-      return await getTaskData()
-          .getSubTasks(widget.parent.id, important, urgent);
-    };
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(vsync: this, length: 3);
   }
 
-  AddTaskFunc addTask(bool important, bool urgent) {
-    return (String title) async {
-      return await getTaskData().addTask(Task(
-        parentID: widget.parent.id,
-        isImportant: important,
-        isUrgent: urgent,
-        title: title,
-      ));
-    };
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
-  String getTitle(important, urgent) {
-    if (important && urgent) {
-      return "重要&紧急";
-    } else if (important && !urgent) {
-      return "重要&不紧急";
-    } else if (!important && urgent) {
-      return "不重要&紧急";
-    } else {
-      return "不重要&不紧急";
-    }
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<ng.Navigator>>(
+        future: getNavigatorData().fetchNavigators(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text("Error: ${snapshot.error}}"),
+            );
+          }
+          return NavigatorWidget(navigators: snapshot.data!);
+        });
+  }
+}
+
+class NavigatorWidget extends StatefulWidget {
+  List<ng.Navigator> navigators;
+
+  NavigatorWidget({required this.navigators});
+
+  @override
+  NavigatorWidgetState createState() => NavigatorWidgetState();
+}
+
+class NavigatorWidgetState extends State<NavigatorWidget>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController =
+        TabController(vsync: this, length: widget.navigators.length);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: widget.parent.id == rootParentID
-              ? Container()
-              : Text(widget.parent.title),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.cleaning_services_outlined),
-              onPressed: onClean,
-            ),
-          ],
-        ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TaskBlock(
-                      backgroundColor: Color.fromARGB(255, 246, 148, 129),
-                      taskListColor: Color.fromARGB(255, 187, 152, 145),
-                      getTasks: getTasks(true, true),
-                      title: getTitle(true, true),
-                      important: true,
-                      urgent: true,
-                      addTask: addTask(true, true)),
-                  TaskBlock(
-                      backgroundColor: Color.fromARGB(211, 139, 207, 93),
-                      taskListColor: Color.fromARGB(211, 192, 237, 162),
-                      getTasks: getTasks(true, false),
-                      title: getTitle(true, false),
-                      important: true,
-                      urgent: false,
-                      addTask: addTask(true, false)),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TaskBlock(
-                      backgroundColor: Color.fromARGB(255, 92, 199, 249),
-                      taskListColor: Color.fromARGB(255, 161, 205, 226),
-                      getTasks: getTasks(false, true),
-                      title: getTitle(false, true),
-                      important: false,
-                      urgent: true,
-                      addTask: addTask(false, true)),
-                  TaskBlock(
-                      backgroundColor: Color.fromARGB(255, 158, 160, 158),
-                      taskListColor: Color.fromARGB(255, 191, 193, 191),
-                      getTasks: getTasks(false, false),
-                      title: getTitle(false, false),
-                      important: false,
-                      urgent: false,
-                      addTask: addTask(false, false)),
-                ],
-              ),
-            ),
-          ],
-        ));
+            bottom: PreferredSize(
+          preferredSize: Size.fromHeight(48.0),
+          child: TabBar(
+            controller: _tabController,
+            tabs: List.generate(widget.navigators.length,
+                (index) => Text(widget.navigators[index].title)),
+          ),
+        )),
+        body: TabBarView(
+            controller: _tabController,
+            children: List.generate(widget.navigators.length, (index) {
+              var parent = rootParent;
+              parent.navigatorID = widget.navigators[index].id;
+              return FourQuadrant(parent: parent);
+            })));
   }
 }

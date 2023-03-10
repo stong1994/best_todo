@@ -1,13 +1,16 @@
 import 'dart:developer';
 
+import 'package:best_todo/model/navigator.dart';
+
 import '../model/task.dart';
 import './task_data.dart';
 import 'package:uuid/uuid.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../config/config.dart';
+import 'navigator_data.dart';
 
-class SqliteData implements TaskData {
+class SqliteData implements TaskData, NavigatorData {
   // WidgetsFlutterBinding.ensureInitialized();
   Future<Database> createDatabase() async {
     print(join(await getDatabasesPath(), sqliteDBName));
@@ -16,7 +19,9 @@ class SqliteData implements TaskData {
       version: 1,
       onCreate: (db, version) {
         db.execute(
-            'CREATE TABLE tasks(id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, detail TEXT, is_done INTEGER, is_important INTEGER, is_urgent INTEGER, create_dt INTEGER, update_dt INTEGER, sort INTEGER)');
+            'CREATE TABLE tasks(id TEXT PRIMARY KEY, parent_id TEXT, navigator_id TEXT, title TEXT, detail TEXT, is_done INTEGER, is_important INTEGER, is_urgent INTEGER, create_dt INTEGER, update_dt INTEGER, sort INTEGER)');
+        db.execute(
+            'CREATE TABLE navigators(id TEXT PRIMARY KEY, title TEXT, create_dt INTEGER, update_dt INTEGER, sort INTEGER)');
       },
     );
   }
@@ -152,5 +157,63 @@ class SqliteData implements TaskData {
     });
     batch.commit();
     return;
+  }
+
+  @override
+  Future<Navigator> addNavigator(Navigator navigator) async {
+    final db = await createDatabase();
+    navigator.createDt = Timeline.now;
+    navigator.id = Uuid().v4();
+    navigator.sort = await getNavigatorMaxSort() + 1;
+    await db.insert(sqliteNavigatorTableName, navigator.toSqlite());
+    return navigator;
+  }
+
+  Future<int> getNavigatorMaxSort() async {
+    final db = await createDatabase();
+    final result = await db.rawQuery(
+        'SELECT IFNULL(MAX(sort), 1) as max_sort FROM $sqliteNavigatorTableName');
+    return result.first['max_sort'] as int;
+  }
+
+  @override
+  Future deleteNavigator(Navigator navigator) async {
+    final db = await createDatabase();
+    await db.delete(
+      sqliteNavigatorTableName,
+      where: 'id = ?',
+      whereArgs: [navigator.id],
+    );
+  }
+
+  @override
+  Future<List<Navigator>> fetchNavigators() async {
+    final db = await createDatabase();
+    final navigators = await db.query(sqliteNavigatorTableName);
+    List<Navigator> rst = List.generate(
+        navigators.length, (index) => Navigator.fromSqlite(navigators[index]));
+    rst.sort((a, b) => a.compareTo(b));
+    return rst;
+  }
+
+  @override
+  Future<Navigator> getNavigator(String id) async {
+    final db = await createDatabase();
+    final navigators = await db
+        .query(sqliteNavigatorTableName, where: 'id = ?', whereArgs: [id]);
+    return Navigator.fromSqlite(navigators.first);
+  }
+
+  @override
+  Future<Navigator> updateNavigator(Navigator navigator) async {
+    final db = await createDatabase();
+    navigator.updateDt = Timeline.now;
+    await db.update(
+      sqliteNavigatorTableName,
+      navigator.toSqlite(),
+      where: 'id = ?',
+      whereArgs: [navigator.id],
+    );
+    return navigator;
   }
 }

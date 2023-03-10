@@ -6,6 +6,7 @@ class Task {
   bool isDone;
   String id;
   String parentID;
+  String navigatorID;
   int createDt;
   int updateDt;
   int sort;
@@ -19,6 +20,7 @@ class Task {
     this.detail = "",
     this.isDone = false,
     this.id = "",
+    this.navigatorID = "",
     this.parentID = "",
     this.createDt = 0,
     this.updateDt = 0,
@@ -41,6 +43,7 @@ class Task {
     String? detail,
     bool? isDone,
     String? id,
+    String? navigatorID,
     String? parentID,
     int? createDt,
     int? updateDt,
@@ -55,6 +58,7 @@ class Task {
       isDone: isDone ?? this.isDone,
       id: id ?? this.id,
       parentID: parentID ?? this.parentID,
+      navigatorID: navigatorID ?? this.navigatorID,
       createDt: createDt ?? this.createDt,
       updateDt: updateDt ?? this.updateDt,
       isImportant: isImportant ?? this.isImportant,
@@ -68,6 +72,7 @@ class Task {
     return Task(
       id: json['id'],
       parentID: json['parent_id'],
+      navigatorID: json['navigator_id'] ?? '',
       title: json['title'],
       detail: json['detail'],
       isDone: json['is_done'],
@@ -84,6 +89,7 @@ class Task {
     return Task(
       id: json['id'],
       parentID: json['parent_id'],
+      navigatorID: json['navigator_id'] ?? '',
       title: json['title'],
       detail: json['detail'] ?? '',
       isDone: json['is_done'] == 1 ? true : false,
@@ -103,6 +109,7 @@ class Task {
         'is_urgent': isUrgent,
         'id': id,
         'parent_id': parentID,
+        'navigator_id': navigatorID,
         'create_dt': createDt,
         'update_dt': updateDt,
         'sort': sort,
@@ -116,6 +123,7 @@ class Task {
         'is_urgent': isUrgent ? 1 : 0,
         'id': id,
         'parent_id': parentID,
+        'navigator_id': navigatorID,
         'create_dt': createDt,
         'update_dt': updateDt,
         'sort': sort,
