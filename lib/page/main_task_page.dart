@@ -58,12 +58,12 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
           return Scaffold(
               appBar: AppBar(
                   bottom: PreferredSize(
-                      preferredSize: Size.fromHeight(48.0),
+                      preferredSize: Size.fromHeight(0),
                       child: Row(
                         children: [
                           Expanded(
                             child: TabBar(
-                              padding: EdgeInsets.all(14),
+                              // padding: EdgeInsets.symmetric(horizontal: 10),
                               controller: _tabController,
                               tabs: List.generate(scenes.length,
                                   (index) => Text(scenes[index].title)),
