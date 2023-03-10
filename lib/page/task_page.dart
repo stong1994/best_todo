@@ -2,6 +2,7 @@ import 'package:best_todo/db/navigator_data.dart';
 import 'package:best_todo/db/task_data.dart';
 import 'package:best_todo/model/task.dart';
 import 'package:best_todo/model/navigator.dart' as ng;
+import 'package:flutter/services.dart';
 import 'task_block.dart';
 import 'package:flutter/material.dart';
 
@@ -16,25 +17,23 @@ class TaskPage extends StatefulWidget {
   _TaskPageState createState() => _TaskPageState();
 }
 
-class _TaskPageState extends State<TaskPage>
-    with SingleTickerProviderStateMixin {
+class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
   void onClean() {
     getTaskData().clean(widget.parent.id).then((value) {
       setState(() {});
     });
   }
 
-  late TabController _tabController;
+  final _textEditingController = TextEditingController();
+  FocusNode focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(vsync: this, length: 3);
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
     super.dispose();
   }
 
@@ -53,55 +52,101 @@ class _TaskPageState extends State<TaskPage>
               child: Text("Error: ${snapshot.error}}"),
             );
           }
-          return NavigatorWidget(navigators: snapshot.data!);
+          final navigators = snapshot.data!;
+          final _tabController =
+              TabController(vsync: this, length: navigators.length);
+
+          return Scaffold(
+              appBar: AppBar(
+                  bottom: PreferredSize(
+                      preferredSize: Size.fromHeight(48.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TabBar(
+                              padding: EdgeInsets.all(14),
+                              controller: _tabController,
+                              tabs: List.generate(navigators.length,
+                                  (index) => Text(navigators[index].title)),
+                            ),
+                          ),
+                          IconButton(
+                              onPressed: onAddNavigator,
+                              icon: const Icon(
+                                Icons.add,
+                                color: Colors.white,
+                              )),
+                        ],
+                      ))),
+              body: TabBarView(
+                  controller: _tabController,
+                  children: List.generate(navigators.length, (index) {
+                    var parent = rootParent.copyWith(navigatorID: navigators[index].id);
+                    return FourQuadrant(parent: parent);
+                  })));
         });
   }
-}
 
-class NavigatorWidget extends StatefulWidget {
-  List<ng.Navigator> navigators;
-
-  NavigatorWidget({required this.navigators});
-
-  @override
-  NavigatorWidgetState createState() => NavigatorWidgetState();
-}
-
-class NavigatorWidgetState extends State<NavigatorWidget>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController =
-        TabController(vsync: this, length: widget.navigators.length);
+  void onAddNavigator() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return RawKeyboardListener(
+            focusNode: focusNode,
+            onKey: (event) {
+              if (event.logicalKey == LogicalKeyboardKey.enter) {
+                addNavigator(context);
+              }
+            },
+            child: AlertDialog(
+              title: const Text('添加场景',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  )),
+              content: SingleChildScrollView(
+                  child: TextField(
+                autofocus: true,
+                controller: _textEditingController,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  hintText: '请描述场景...',
+                  hintStyle: TextStyle(
+                    color: Color.fromARGB(255, 235, 186, 186),
+                    fontSize: 16,
+                  ),
+                  border: UnderlineInputBorder(),
+                ),
+              )),
+              actions: [
+                TextButton(
+                  child: const Text('取消'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text('完成'),
+                  onPressed: () {
+                    addNavigator(context);
+                  },
+                ),
+              ],
+            ));
+      },
+    );
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            bottom: PreferredSize(
-          preferredSize: Size.fromHeight(48.0),
-          child: TabBar(
-            controller: _tabController,
-            tabs: List.generate(widget.navigators.length,
-                (index) => Text(widget.navigators[index].title)),
-          ),
-        )),
-        body: TabBarView(
-            controller: _tabController,
-            children: List.generate(widget.navigators.length, (index) {
-              var parent = rootParent;
-              parent.navigatorID = widget.navigators[index].id;
-              return FourQuadrant(parent: parent);
-            })));
+  void addNavigator(BuildContext context) {
+    final title = _textEditingController.text;
+    _textEditingController.clear();
+    getNavigatorData().addNavigator(ng.Navigator(title: title)).then((_) {
+      Navigator.of(context).pop();
+      setState(() {});
+    });
   }
 }
