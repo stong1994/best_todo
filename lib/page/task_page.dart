@@ -1,7 +1,7 @@
-import 'package:best_todo/db/navigator_data.dart';
+import 'package:best_todo/db/scene_data.dart';
 import 'package:best_todo/db/task_data.dart';
 import 'package:best_todo/model/task.dart';
-import 'package:best_todo/model/navigator.dart' as ng;
+import 'package:best_todo/model/scene.dart';
 import 'package:flutter/services.dart';
 import 'task_block.dart';
 import 'package:flutter/material.dart';
@@ -39,8 +39,8 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<ng.Navigator>>(
-        future: getNavigatorData().fetchNavigators(),
+    return FutureBuilder<List<Scene>>(
+        future: getSceneData().fetchScenes(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Center(
@@ -52,9 +52,9 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
               child: Text("Error: ${snapshot.error}}"),
             );
           }
-          final navigators = snapshot.data!;
+          final scenes = snapshot.data!;
           final _tabController =
-              TabController(vsync: this, length: navigators.length);
+              TabController(vsync: this, length: scenes.length);
 
           return Scaffold(
               appBar: AppBar(
@@ -66,8 +66,8 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
                             child: TabBar(
                               padding: EdgeInsets.all(14),
                               controller: _tabController,
-                              tabs: List.generate(navigators.length,
-                                  (index) => Text(navigators[index].title)),
+                              tabs: List.generate(scenes.length,
+                                  (index) => Text(scenes[index].title)),
                             ),
                           ),
                           IconButton(
@@ -80,8 +80,8 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
                       ))),
               body: TabBarView(
                   controller: _tabController,
-                  children: List.generate(navigators.length, (index) {
-                    var parent = rootParent.copyWith(navigatorID: navigators[index].id);
+                  children: List.generate(scenes.length, (index) {
+                    var parent = rootParent.copyWith(sceneID: scenes[index].id);
                     return FourQuadrant(parent: parent);
                   })));
         });
@@ -144,7 +144,7 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
   void addNavigator(BuildContext context) {
     final title = _textEditingController.text;
     _textEditingController.clear();
-    getNavigatorData().addNavigator(ng.Navigator(title: title)).then((_) {
+    getSceneData().addScene(Scene(title: title)).then((_) {
       Navigator.of(context).pop();
       setState(() {});
     });

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class Navigator {
+class Scene {
   String title;
   String id;
   int createDt;
   int updateDt;
   int sort;
 
-  Navigator({
+  Scene({
     this.title = "",
     this.id = "",
     this.createDt = 0,
@@ -19,14 +19,14 @@ class Navigator {
     return ValueKey(id);
   }
 
-  Navigator copyWith({
+  Scene copyWith({
     String? id,
     String? title,
     int? createDt,
     int? updateDt,
     int? sort,
   }) {
-    return Navigator(
+    return Scene(
       title: title ?? this.title,
       id: id ?? this.id,
       createDt: createDt ?? this.createDt,
@@ -35,8 +35,8 @@ class Navigator {
     );
   }
 
-  factory Navigator.fromJson(Map<String, dynamic> json) {
-    return Navigator(
+  factory Scene.fromJson(Map<String, dynamic> json) {
+    return Scene(
       id: json['id'],
       title: json['title'],
       createDt: json['create_dt'],
@@ -45,8 +45,8 @@ class Navigator {
     );
   }
 
-  factory Navigator.fromSqlite(Map<String, dynamic> json) {
-    return Navigator(
+  factory Scene.fromSqlite(Map<String, dynamic> json) {
+    return Scene(
       id: json['id'],
       title: json['title'],
       createDt: json['create_dt'] ?? 0,
@@ -71,7 +71,7 @@ class Navigator {
         'sort': sort,
       };
 
-  int compareTo(Navigator other) {
+  int compareTo(Scene other) {
     return sort - other.sort;
   }
 }
