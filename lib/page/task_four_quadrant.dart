@@ -14,7 +14,13 @@ class FourQuadrant extends StatefulWidget {
 
   GetTaskFunc getTasks(bool important, bool urgent) {
     return () async {
-      return await getTaskData().getSubTasks(parent.id, important, urgent);
+      return await getTaskData().getSubTasks(
+          parent.id,
+          important,
+          urgent,
+          parent.navigatorID == ""
+              ? null
+              : parent.navigatorID); // todo 临时处理没有navigatorID的老数据
     };
   }
 

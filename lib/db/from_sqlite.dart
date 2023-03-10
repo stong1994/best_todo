@@ -116,22 +116,26 @@ class SqliteData implements TaskData, NavigatorData {
   }
 
   @override
-  Future<List<Task>> getSubTasks(
-      String? parentID, bool? important, bool? urgent) async {
+  Future<List<Task>> getSubTasks(String? parentID, bool? important,
+      bool? urgent, String? navigatorID) async {
     final db = await createDatabase();
     List<String> where = [];
     List<dynamic> args = [];
-    if (parentID != Null) {
+    if (parentID != null) {
       where.add('parent_id = ?');
-      args.add(parentID!);
+      args.add(parentID);
     }
-    if (important != Null) {
+    if (important != null) {
       where.add('is_important = ?');
-      args.add(important!);
+      args.add(important);
     }
-    if (urgent != Null) {
+    if (urgent != null) {
       where.add('is_urgent = ?');
-      args.add(urgent!);
+      args.add(urgent);
+    }
+    if (navigatorID != null) {
+      where.add('navigator_id = ?');
+      args.add(navigatorID);
     }
     final tasks = await db.query(sqliteTableName,
         where: where.isNotEmpty ? where.join(' and ') : null,
