@@ -58,15 +58,23 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
           return Scaffold(
               appBar: AppBar(
                   bottom: PreferredSize(
-                      preferredSize: Size.fromHeight(0),
+                      preferredSize: Size.fromHeight(kToolbarHeight), // todo
                       child: Row(
                         children: [
                           Expanded(
                             child: TabBar(
-                              // padding: EdgeInsets.symmetric(horizontal: 10),
+                              isScrollable: true,
+                              padding:
+                                  EdgeInsets.symmetric(horizontal: 10), // todo
                               controller: _tabController,
-                              tabs: List.generate(scenes.length,
-                                  (index) => Text(scenes[index].title)),
+                              tabs: List.generate(scenes.length, (index) {
+                                return NavigatorItem(
+                                  scene: scenes[index],
+                                  onCloseScene: () {
+                                    closeNavigator(scenes[index]);
+                                  },
+                                );
+                              }),
                             ),
                           ),
                           IconButton(
@@ -147,5 +155,158 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
       Navigator.of(context).pop();
       setState(() {});
     });
+  }
+
+  void closeNavigator(Scene scene) {
+    getSceneData().deleteScene(scene).then((_) {
+      setState(() {});
+    });
+  }
+}
+
+class NavigatorItem extends StatefulWidget {
+  final Scene scene;
+  final Function() onCloseScene;
+
+  NavigatorItem({required this.scene, required this.onCloseScene});
+
+  @override
+  State<StatefulWidget> createState() => NavigatorItemState();
+}
+
+class NavigatorItemState extends State<NavigatorItem> {
+  bool _hovering = false;
+
+  Widget hoverWidget() {
+    return IconButton(
+      icon: Icon(Icons.close),
+      onPressed: () {
+        widget.onCloseScene();
+      },
+    );
+  }
+
+  Widget unHoverWidget() {
+    return Container(
+      width: 30,
+      height: 30,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      // padding: EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+      margin: EdgeInsets.symmetric(vertical: 8),
+      child: Stack(
+        children: [
+          Text(
+            widget.scene.title,
+          ),
+          Align(
+              alignment: Alignment.topRight,
+              child: MouseRegion(
+                  onEnter: (PointerEnterEvent event) {
+                    setState(() {
+                      _hovering = true;
+                    });
+                  },
+                  onExit: (PointerExitEvent event) {
+                    setState(() {
+                      _hovering = false;
+                    });
+                  },
+                  child: _hovering ? hoverWidget() : unHoverWidget())),
+        ],
+      ),
+    );
+    //  return Container(
+    //         width: 100,
+
+    //         child: ListTile(
+    //           title: Text(widget.scene.title),
+    //           trailing: _hovering
+    //               ? Icon(Icons.close)
+    //               : Container(
+    //                   width: 0,
+    //                   height: 0,
+    //                 ),
+    //         ),
+    //       )
+    //   return MouseRegion(
+    //       onEnter: (PointerEnterEvent event) {
+    //         setState(() {
+    //           _hovering = true;
+    //         });
+    //       },
+    //       onExit: (PointerExitEvent event) {
+    //         setState(() {
+    //           _hovering = false;
+    //         });
+    //       },
+    //       child: Container(
+    //         width: 100,
+    //         child: ListTile(
+    //           title: Text(widget.scene.title),
+    //           trailing: _hovering
+    //               ? Icon(Icons.close)
+    //               : Container(
+    //                   width: 0,
+    //                   height: 0,
+    //                 ),
+    //         ),
+    //       ));
+
+    // return Container(
+    //     width: 100,
+    //     child: ListTile(
+    //       title: Text(widget.scene.title),
+    //       trailing: _hovering
+    //           ? IconButton(
+    //               icon: Icon(Icons.close),
+    //               onPressed: () {
+    //                 widget.onCloseScene(widget.scene);
+    //               },
+    //             )
+    //           : Container(),
+    //     ));
+    // return Container(
+    //     padding: const EdgeInsets.all(8.0),
+    //     child: Stack(
+    //       alignment: Alignment.topRight,
+    //       children: [
+    //         Text(widget.scene.title),
+    //         Positioned(
+    //             top: 0,
+    //             right: 0,
+    //             child: GestureDetector(
+    //               onTap: () {
+    //                 widget.onCloseScene(widget.scene);
+    //               },
+    //               child: _hovering
+    //                   ? Positioned(
+    //                       right: 10,
+    //                       top: 10,
+    //                       child: Icon(Icons.close, color: Colors.red))
+    //                   : Container(),
+    //             ))
+    //       ],
+    //     ),
+    //   )
+
+    //   return MouseRegion(
+    //     onEnter: (PointerEnterEvent event) {
+    //       setState(() {
+    //         _hovering = true;
+    //       });
+    //     },
+    //     onExit: (PointerExitEvent event) {
+    //       setState(() {
+    //         _hovering = false;
+    //       });
+    //     },
+    //     child:
+    //   );
   }
 }
