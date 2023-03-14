@@ -4,6 +4,7 @@ import 'package:best_todo/model/task.dart';
 import 'package:best_todo/model/scene.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 import 'task_four_quadrant.dart';
 
@@ -56,35 +57,42 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
               TabController(vsync: this, length: scenes.length);
 
           return Scaffold(
-              appBar: AppBar(
-                  bottom: PreferredSize(
-                      preferredSize: Size.fromHeight(kToolbarHeight), // todo
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TabBar(
-                              isScrollable: true,
-                              padding:
-                                  EdgeInsets.symmetric(horizontal: 10), // todo
-                              controller: _tabController,
-                              tabs: List.generate(scenes.length, (index) {
-                                return NavigatorItem(
-                                  scene: scenes[index],
-                                  onCloseScene: () {
-                                    closeNavigator(scenes[index]);
-                                  },
-                                );
-                              }),
+              appBar: PreferredSize(
+                preferredSize: Size.fromHeight(kToolbarHeight + 10),
+                child: AppBar(
+                    bottom: PreferredSize(
+                        preferredSize: Size.fromHeight(kToolbarHeight), // todo
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TabBar(
+                                isScrollable: true,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 10), // todo
+                                controller: _tabController,
+                                tabs: List.generate(scenes.length, (index) {
+                                  return NavigatorItem(
+                                    scene: scenes[index],
+                                    onCloseScene: () {
+                                      closeNavigator(scenes[index]);
+                                    },
+                                    editScene: (title) {
+                                      scenes[index].title = title;
+                                      updateNavigator(scenes[index]);
+                                    },
+                                  );
+                                }),
+                              ),
                             ),
-                          ),
-                          IconButton(
-                              onPressed: onAddNavigator,
-                              icon: const Icon(
-                                Icons.add,
-                                color: Colors.white,
-                              )),
-                        ],
-                      ))),
+                            IconButton(
+                                onPressed: onAddNavigator,
+                                icon: const Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                )),
+                          ],
+                        ))),
+              ),
               body: TabBarView(
                   controller: _tabController,
                   children: List.generate(scenes.length, (index) {
@@ -162,13 +170,23 @@ class _TaskPageState extends State<TaskPage> with TickerProviderStateMixin {
       setState(() {});
     });
   }
+
+  void updateNavigator(Scene scene) {
+    getSceneData().updateScene(scene).then((_) {
+      setState(() {});
+    });
+  }
 }
 
 class NavigatorItem extends StatefulWidget {
   final Scene scene;
   final Function() onCloseScene;
+  final Function(String title) editScene;
 
-  NavigatorItem({required this.scene, required this.onCloseScene});
+  NavigatorItem(
+      {required this.scene,
+      required this.onCloseScene,
+      required this.editScene});
 
   @override
   State<StatefulWidget> createState() => NavigatorItemState();
@@ -176,137 +194,139 @@ class NavigatorItem extends StatefulWidget {
 
 class NavigatorItemState extends State<NavigatorItem> {
   bool _hovering = false;
+  final _textEditingController = TextEditingController();
 
-  Widget hoverWidget() {
-    return IconButton(
-      icon: Icon(Icons.close),
-      onPressed: () {
-        widget.onCloseScene();
-      },
-    );
+  @override
+  void initState() {
+    super.initState();
+    _textEditingController.text = widget.scene.title;
   }
 
-  Widget unHoverWidget() {
-    return Container(
-      width: 30,
-      height: 30,
+  Widget menuList(context) {
+    return PopupMenuButton(
+      onCanceled: () => _hovering = false,
+      itemBuilder: (BuildContext context) {
+        return <PopupMenuEntry>[
+          PopupMenuItem(
+            child: ListTile(
+                title: Text('编辑'),
+                contentPadding: EdgeInsets.zero, // 取消内边距
+                dense: true,
+                leading: Container(
+                  height: 24.0,
+                  child: Icon(Icons.edit, size: 16.0),
+                ),
+                // title: Text('编辑'),
+                onTap: () {
+                  onEditScene();
+                  // Navigator.of(context).pop(); // todo
+                }),
+          ),
+          PopupMenuItem(
+            child: ListTile(
+              title: Text('删除'),
+              contentPadding: EdgeInsets.zero, // 取消内边距
+              dense: true,
+              leading: Container(
+                height: 24.0,
+                child: Icon(Icons.edit, size: 16.0),
+              ),
+              onTap: () {
+                widget.onCloseScene(); // todo pop context
+              },
+            ),
+          ),
+        ];
+      },
+      icon: Transform.rotate(
+          angle: 90 * pi / 180, child: Icon(Icons.adaptive.more_outlined)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 100,
-      // padding: EdgeInsets.symmetric(horizontal: 12, vertical: 18),
-      margin: EdgeInsets.symmetric(vertical: 8),
-      child: Stack(
-        children: [
-          Text(
-            widget.scene.title,
+    return MouseRegion(
+        onEnter: (PointerEnterEvent event) {
+          setState(() {
+            _hovering = true;
+          });
+        },
+        onExit: (PointerExitEvent event) {
+          setState(() {
+            _hovering = false;
+          });
+        },
+        child: Container(
+          width: 100,
+          // height: kToolbarHeight,
+          // padding: EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+          margin: EdgeInsets.symmetric(vertical: 8),
+          child: Stack(
+            children: [
+              Text(
+                widget.scene.title,
+              ),
+              Align(
+                  alignment: Alignment.topRight,
+                  child: _hovering ? menuList(context) : Container()),
+            ],
           ),
-          Align(
-              alignment: Alignment.topRight,
-              child: MouseRegion(
-                  onEnter: (PointerEnterEvent event) {
-                    setState(() {
-                      _hovering = true;
-                    });
+        ));
+  }
+
+  void onEditScene() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return RawKeyboardListener(
+            focusNode: FocusNode(),
+            onKey: (event) {
+              if (event.logicalKey == LogicalKeyboardKey.enter) {
+                widget.editScene(_textEditingController.text);
+                Navigator.of(context).pop();
+              }
+            },
+            child: AlertDialog(
+              title: const Text('更新场景',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  )),
+              content: SingleChildScrollView(
+                  child: TextField(
+                autofocus: true,
+                controller: _textEditingController,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  hintText: '请描述场景...',
+                  hintStyle: TextStyle(
+                    color: Color.fromARGB(255, 235, 186, 186),
+                    fontSize: 16,
+                  ),
+                  border: UnderlineInputBorder(),
+                ),
+              )),
+              actions: [
+                TextButton(
+                  child: const Text('取消'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
                   },
-                  onExit: (PointerExitEvent event) {
-                    setState(() {
-                      _hovering = false;
-                    });
+                ),
+                TextButton(
+                  child: const Text('完成'),
+                  onPressed: () {
+                    widget.editScene(_textEditingController.text);
+                    Navigator.of(context).pop();
                   },
-                  child: _hovering ? hoverWidget() : unHoverWidget())),
-        ],
-      ),
+                ),
+              ],
+            ));
+      },
     );
-    //  return Container(
-    //         width: 100,
-
-    //         child: ListTile(
-    //           title: Text(widget.scene.title),
-    //           trailing: _hovering
-    //               ? Icon(Icons.close)
-    //               : Container(
-    //                   width: 0,
-    //                   height: 0,
-    //                 ),
-    //         ),
-    //       )
-    //   return MouseRegion(
-    //       onEnter: (PointerEnterEvent event) {
-    //         setState(() {
-    //           _hovering = true;
-    //         });
-    //       },
-    //       onExit: (PointerExitEvent event) {
-    //         setState(() {
-    //           _hovering = false;
-    //         });
-    //       },
-    //       child: Container(
-    //         width: 100,
-    //         child: ListTile(
-    //           title: Text(widget.scene.title),
-    //           trailing: _hovering
-    //               ? Icon(Icons.close)
-    //               : Container(
-    //                   width: 0,
-    //                   height: 0,
-    //                 ),
-    //         ),
-    //       ));
-
-    // return Container(
-    //     width: 100,
-    //     child: ListTile(
-    //       title: Text(widget.scene.title),
-    //       trailing: _hovering
-    //           ? IconButton(
-    //               icon: Icon(Icons.close),
-    //               onPressed: () {
-    //                 widget.onCloseScene(widget.scene);
-    //               },
-    //             )
-    //           : Container(),
-    //     ));
-    // return Container(
-    //     padding: const EdgeInsets.all(8.0),
-    //     child: Stack(
-    //       alignment: Alignment.topRight,
-    //       children: [
-    //         Text(widget.scene.title),
-    //         Positioned(
-    //             top: 0,
-    //             right: 0,
-    //             child: GestureDetector(
-    //               onTap: () {
-    //                 widget.onCloseScene(widget.scene);
-    //               },
-    //               child: _hovering
-    //                   ? Positioned(
-    //                       right: 10,
-    //                       top: 10,
-    //                       child: Icon(Icons.close, color: Colors.red))
-    //                   : Container(),
-    //             ))
-    //       ],
-    //     ),
-    //   )
-
-    //   return MouseRegion(
-    //     onEnter: (PointerEnterEvent event) {
-    //       setState(() {
-    //         _hovering = true;
-    //       });
-    //     },
-    //     onExit: (PointerExitEvent event) {
-    //       setState(() {
-    //         _hovering = false;
-    //       });
-    //     },
-    //     child:
-    //   );
   }
 }
