@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 
-import 'task_page.dart';
+import 'sub_task_page.dart';
+import 'main_task_page.dart';
 import 'task_block.dart';
 
 class MainTaskItem extends StatefulWidget {
@@ -183,7 +184,7 @@ class _MainTaskItemState extends State<MainTaskItem> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TaskPage(
+        builder: (context) => SubTaskPage(
           parent: widget.task,
         ),
       ),

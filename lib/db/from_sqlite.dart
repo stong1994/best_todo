@@ -1,13 +1,16 @@
 import 'dart:developer';
 
+import 'package:best_todo/model/scene.dart';
+
 import '../model/task.dart';
 import './task_data.dart';
 import 'package:uuid/uuid.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../config/config.dart';
+import 'scene_data.dart';
 
-class SqliteData implements TaskData {
+class SqliteData implements TaskData, SceneData {
   // WidgetsFlutterBinding.ensureInitialized();
   Future<Database> createDatabase() async {
     print(join(await getDatabasesPath(), sqliteDBName));
@@ -16,7 +19,9 @@ class SqliteData implements TaskData {
       version: 1,
       onCreate: (db, version) {
         db.execute(
-            'CREATE TABLE tasks(id TEXT PRIMARY KEY, parent_id TEXT, title TEXT, detail TEXT, is_done INTEGER, is_important INTEGER, is_urgent INTEGER, create_dt INTEGER, update_dt INTEGER, sort INTEGER)');
+            'CREATE TABLE tasks(id TEXT PRIMARY KEY, parent_id TEXT, scene_id TEXT, title TEXT, detail TEXT, is_done INTEGER, is_important INTEGER, is_urgent INTEGER, create_dt INTEGER, update_dt INTEGER, sort INTEGER)');
+        db.execute(
+            'CREATE TABLE scenes(id TEXT PRIMARY KEY, title TEXT, create_dt INTEGER, update_dt INTEGER, sort INTEGER)');
       },
     );
   }
@@ -112,21 +117,25 @@ class SqliteData implements TaskData {
 
   @override
   Future<List<Task>> getSubTasks(
-      String? parentID, bool? important, bool? urgent) async {
+      String? parentID, bool? important, bool? urgent, String? sceneID) async {
     final db = await createDatabase();
     List<String> where = [];
     List<dynamic> args = [];
-    if (parentID != Null) {
+    if (parentID != null) {
       where.add('parent_id = ?');
-      args.add(parentID!);
+      args.add(parentID);
     }
-    if (important != Null) {
+    if (important != null) {
       where.add('is_important = ?');
-      args.add(important!);
+      args.add(important);
     }
-    if (urgent != Null) {
+    if (urgent != null) {
       where.add('is_urgent = ?');
-      args.add(urgent!);
+      args.add(urgent);
+    }
+    if (sceneID != null) {
+      where.add('scene_id = ?');
+      args.add(sceneID);
     }
     final tasks = await db.query(sqliteTableName,
         where: where.isNotEmpty ? where.join(' and ') : null,
@@ -152,5 +161,63 @@ class SqliteData implements TaskData {
     });
     batch.commit();
     return;
+  }
+
+  @override
+  Future<Scene> addScene(Scene scene) async {
+    final db = await createDatabase();
+    scene.createDt = Timeline.now;
+    scene.id = Uuid().v4();
+    scene.sort = await getSceneMaxSort() + 1;
+    await db.insert(sqliteSceneTableName, scene.toSqlite());
+    return scene;
+  }
+
+  Future<int> getSceneMaxSort() async {
+    final db = await createDatabase();
+    final result = await db.rawQuery(
+        'SELECT IFNULL(MAX(sort), 1) as max_sort FROM $sqliteSceneTableName');
+    return result.first['max_sort'] as int;
+  }
+
+  @override
+  Future deleteScene(Scene scene) async {
+    final db = await createDatabase();
+    await db.delete(
+      sqliteSceneTableName,
+      where: 'id = ?',
+      whereArgs: [scene.id],
+    );
+  }
+
+  @override
+  Future<List<Scene>> fetchScenes() async {
+    final db = await createDatabase();
+    final scenes = await db.query(sqliteSceneTableName);
+    List<Scene> rst = List.generate(
+        scenes.length, (index) => Scene.fromSqlite(scenes[index]));
+    rst.sort((a, b) => a.compareTo(b));
+    return rst;
+  }
+
+  @override
+  Future<Scene> getScene(String id) async {
+    final db = await createDatabase();
+    final scenes =
+        await db.query(sqliteSceneTableName, where: 'id = ?', whereArgs: [id]);
+    return Scene.fromSqlite(scenes.first);
+  }
+
+  @override
+  Future<Scene> updateScene(Scene scene) async {
+    final db = await createDatabase();
+    scene.updateDt = Timeline.now;
+    await db.update(
+      sqliteSceneTableName,
+      scene.toSqlite(),
+      where: 'id = ?',
+      whereArgs: [scene.id],
+    );
+    return scene;
   }
 }
