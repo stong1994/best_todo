@@ -213,7 +213,7 @@ class NavigatorItemState extends State<NavigatorItem> {
                 contentPadding: EdgeInsets.zero, // 取消内边距
                 dense: true,
                 leading: Container(
-                  height: 24.0,
+                  height: 18.0,
                   child: Icon(Icons.edit, size: 16.0),
                 ),
                 // title: Text('编辑'),
@@ -228,8 +228,8 @@ class NavigatorItemState extends State<NavigatorItem> {
               contentPadding: EdgeInsets.zero, // 取消内边距
               dense: true,
               leading: Container(
-                height: 24.0,
-                child: Icon(Icons.edit, size: 16.0),
+                height: 18.0,
+                child: Icon(Icons.delete_forever, size: 16.0),
               ),
               onTap: () {
                 widget.onCloseScene(); // todo pop context
@@ -268,7 +268,14 @@ class NavigatorItemState extends State<NavigatorItem> {
               ),
               Align(
                   alignment: Alignment.topRight,
-                  child: _hovering ? menuList(context) : Container()),
+                  child: _hovering
+                      ? Container(
+                          height: 20,
+                          child: menuList(context),
+                        )
+                      : Container(
+                          height: 20,
+                        )),
             ],
           ),
         ));
