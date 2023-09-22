@@ -212,53 +212,47 @@ class _TaskBlockState extends State<TaskBlock> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return RawKeyboardListener(
-            focusNode: focusNode,
-            onKey: (event) {
-              if (event.logicalKey == LogicalKeyboardKey.enter) {
-                onTaskAdd(context);
-              }
-            },
-            child: AlertDialog(
-              title: const Text('添加任务',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  )),
-              backgroundColor: widget.backgroundColor.withOpacity(0.9),
-              content: SingleChildScrollView(
-                  child: TextField(
-                autofocus: true,
-                controller: _textEditingController,
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
-                  hintText: '请描述任务...',
-                  hintStyle: TextStyle(
-                    color: Color.fromARGB(255, 235, 186, 186),
-                    fontSize: 16,
-                  ),
-                  border: UnderlineInputBorder(),
-                ),
+        return AlertDialog(
+          title: const Text('添加任务',
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
               )),
-              actions: [
-                TextButton(
-                  child: const Text('取消'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: const Text('完成'),
-                  onPressed: () {
-                    onTaskAdd(context);
-                  },
-                ),
-              ],
-            ));
+          backgroundColor: widget.backgroundColor.withOpacity(0.9),
+          content: SingleChildScrollView(
+              child: TextField(
+            autofocus: true,
+            controller: _textEditingController,
+            onSubmitted: (_) => onTaskAdd(context),
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
+              hintText: '请描述任务...',
+              hintStyle: TextStyle(
+                color: Color.fromARGB(255, 235, 186, 186),
+                fontSize: 16,
+              ),
+              border: UnderlineInputBorder(),
+            ),
+          )),
+          actions: [
+            TextButton(
+              child: const Text('取消'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('完成'),
+              onPressed: () {
+                onTaskAdd(context);
+              },
+            ),
+          ],
+        );
       },
     );
   }
